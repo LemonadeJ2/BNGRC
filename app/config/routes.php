@@ -20,7 +20,7 @@ $router->group('', function(Router $router) use ($app) {
 		$app->render('login.php');
 	});
 
-	$router->post('/login_admin', function() use ($app) {
+	$router->post('/dashboard', function() use ($app) {
 		$adminController = new AdminController($app);
 		$adminController->loginAdmin();
 	});
