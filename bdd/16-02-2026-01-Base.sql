@@ -1,0 +1,16 @@
+CREATE DATABASE BNGRC;
+USE BNGRC;
+
+CREATE TABLE besoin (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    prix DECIMAL(10,2) NOT NULL
+);
+
+CREATE TABLE ville (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_besoin INT NOT NULL,
+    nom VARCHAR(100) NOT NULL,
+    nb_sinistre INT NOT NULL,
+    FOREIGN KEY (id_besoin) REFERENCES besoin(id)
+);
