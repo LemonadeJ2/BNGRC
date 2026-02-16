@@ -20,45 +20,23 @@
                 <div class="hero__subtitle">Gestion des Risques</div>
             </div>
         </div>
-        <div class="hero__content">
-            <h1>Système de Suivi des Dons</h1>
-            <p>Surveillez les besoins, les dons mobilisés et les distributions en temps réel.</p>
-            <div class="hero__stats">
-                <div class="stat">
-                    <span class="stat__label">Total besoins estimés</span>
-                    <span class="stat__value">452,500 Ar</span>
-                </div>
-                <div class="stat">
-                    <span class="stat__label">Dons reçus</span>
-                    <span class="stat__value">312,800 Ar</span>
-                </div>
-                <div class="stat">
-                    <span class="stat__label">Satisfaction</span>
-                    <span class="stat__value">69.1%</span>
-                </div>
-            </div>
-        </div>
     </aside>
     <main class="panel">
         <div class="panel__card">
-            <div class="panel__header">
-                <div class="badge">Live</div>
-                <p class="panel__hint">Accédez au tableau de bord sécurisé du BNGRC.</p>
-            </div>
             <h2>Connexion</h2>
-            <form class="form" method="post" action="/dashboard">
+            <form method="post" action="/login_admin">
                 <label class="field">
-                    <span class="field__label">Adresse e-mail</span>
+                    <span class="field__label">Nom d'utilisateur</span>
                     <div class="field__input">
-                        <span class="material-icons">mail</span>
-                        <input type="email" name="email" placeholder="admin@bngrc.gov.mg" required>
+                        <span class="material-icons">username</span>
+                        <input type="text" name="name" value="admin" required>
                     </div>
                 </label>
                 <label class="field">
                     <span class="field__label">Mot de passe</span>
                     <div class="field__input">
                         <span class="material-icons">lock</span>
-                        <input type="password" name="password" placeholder="••••••••" required>
+                        <input type="password" name="password" value="admin123" required>
                     </div>
                 </label>
                 <div class="form__actions">

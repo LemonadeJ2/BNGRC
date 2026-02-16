@@ -1,20 +1,26 @@
 <?php
-    namespace app\models;
+namespace app\models;
 
-    class Admin{
+class Admin
+{
 
-        protected $db;
+    protected $db;
 
-        public function _construct($db){
-            $this->db = $db;
-        }
-
-        public function loginAdmin($username, $password){
-            if($username === 'admin' && $password === 'admin123'){
-                return true;
-            }
-            return false;
-        }
-
+    public function _construct($db)
+    {
+        $this->db = $db;
     }
-?>  
+
+    public function loginAdmin()
+    {
+        $name = $_POST['name'];
+        $password = $_POST['password'];
+
+        if ($name === 'admin' && $password === 'admin123') {
+            $this->app->render('dashboard');
+        } else {
+           $this->app->render('/');
+        }
+    }
+}
+?>
