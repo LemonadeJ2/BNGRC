@@ -28,20 +28,20 @@
             return $result->fetch();
         }
 
-        public function createVille($id_besoin, $name, $nb_sinistres){
-            $sql = "INSERT INTO ville (id_besoin, nom, nb_sinistres) VALUES (?, ?, ?)";
+        public function createVille($name){
+            $sql = "INSERT INTO ville (nom) VALUES (?)";
             $stmt = $this->db->prepare($sql);
 
-            $result = $stmt->execute([$id_besoin, $name, $nb_sinistres]);
+            $result = $stmt->execute([$name]);
 
             return $result;
         }
 
-        public function updateVille($id, $id_besoin, $name, $nb_sinistres){
-            $sql = "UPDATE ville SET id_besoin = ?, nom = ?, nb_sinistres = ? WHERE id = ?";
+        public function updateVille($name, $id){
+            $sql = "UPDATE ville SET nom = ? WHERE id = ?";
             $stmt = $this->db->prepare($sql);
 
-            $result = $stmt->execute([$id_besoin, $name, $nb_sinistres, $id]);
+            $result = $stmt->execute([$name, $id]);
 
             return $result;
         }
