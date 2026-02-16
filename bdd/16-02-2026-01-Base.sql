@@ -26,7 +26,7 @@ CREATE TABLE ville_besoin (
     id_ville INT NOT NULL,
     id_besoin INT NOT NULL,
     dateB DATE NOT NULL,
-    quantite INT NOT NULL,
+    quantite INT,
     FOREIGN KEY (id_ville) REFERENCES ville(id),
     FOREIGN KEY (id_besoin) REFERENCES besoin(id)
 );
