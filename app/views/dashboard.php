@@ -9,10 +9,10 @@
     <title>BNGRC Dashboard Overview</title>
     
     <!-- Bootstrap CSS Local -->
-    <link href="/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?= BASE_URL ?>/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Bootstrap Icons Local -->
-    <link href="/assets/bootstrap/css/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="<?= BASE_URL ?>/assets/bootstrap/css/bootstrap-icons.min.css" rel="stylesheet">
     
     <!-- Custom CSS -->
     <link href="/assets/style.css" rel="stylesheet">
