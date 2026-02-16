@@ -15,12 +15,8 @@ $router->group('', function(Router $router) use ($app) {
 		$app->render('dashboard');
 	});
 
-	$router->get('/principal', function() use ($app) {
-		$app->render('index1.php');
-	});
-
-	$router->get('/messages', function() use ($app) {
-		$app->render('messages');
+	$router->get('/dashboard', function() use ($app) {
+		$app->render('dashboard.php');
 	});
 	
 }, [ SecurityHeadersMiddleware::class ]);
