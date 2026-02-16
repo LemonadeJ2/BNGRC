@@ -1,10 +1,8 @@
 <?php
 
-use app\controllers\ApiExampleController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
 use flight\net\Router;
-use app\controllers\HomeController;
 /** 
  * @var Router $router 
  * @var Engine $app
@@ -17,6 +15,12 @@ $router->group('', function(Router $router) use ($app) {
 		$app->render('dashboard');
 	});
 
-	
+	$router->get('/principal', function() use ($app) {
+		$app->render('index1.php');
+	});
+
+	$router->get('/messages', function() use ($app) {
+		$app->render('messages');
+	});
 	
 }, [ SecurityHeadersMiddleware::class ]);
