@@ -1,28 +1,28 @@
-
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-    
-    
+
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BNGRC Dashboard Overview</title>
-    
+
     <!-- Bootstrap CSS Local -->
     <link href="/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Bootstrap Icons Local -->
-    <link href="/assets/bootstrap/css/bootstrap-icons.min.css" rel="stylesheet">
-    
+
+    <!-- Bootstrap Icons CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css">
+
     <!-- Custom CSS -->
     <link href="/assets/style.css" rel="stylesheet">
 </head>
 
 <body>
-    
+
     <!-- Layout Wrapper -->
     <div class="dashboard-wrapper">
-        
+
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -34,7 +34,7 @@
                     <p>Gestion des Risques</p>
                 </div>
             </div>
-            
+
             <nav class="sidebar-nav">
                 <a href="#" class="nav-item active">
                     <i class="bi bi-speedometer2"></i>
@@ -57,14 +57,14 @@
                     <span>Simulations d'Impact</span>
                 </a>
             </nav>
-            
+
             <div class="sidebar-footer">
                 <div class="user-card">
                     <p class="user-label">Utilisateur</p>
                     <div class="user-info">
-                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_-BQEaeqadqYV_rHUDoRWHl5FlgJ7tGDeLrC-WjewY2YfXn8GJ7_hE0ifle9JTUd2Nx1aQh8nvxZmDHebyKjKiPkzE-8XjG5cFp91F_EUiM6wZ1P2ufP8REYOvBFvVskpWCLBNOnk2MGOTPDK9liL94-G4zSQE6Ym_qVbU2LKrWIMs2CGmwgVQOrhfAOxRMgBOa__mv9LEmRec2jusOGQS1AO5WrLu9yH5caOtT5J-RZk5joc3jJACj1JOQJtrrOFQLsc5ggFPXk" 
-                             alt="Admin" 
-                             class="user-avatar">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_-BQEaeqadqYV_rHUDoRWHl5FlgJ7tGDeLrC-WjewY2YfXn8GJ7_hE0ifle9JTUd2Nx1aQh8nvxZmDHebyKjKiPkzE-8XjG5cFp91F_EUiM6wZ1P2ufP8REYOvBFvVskpWCLBNOnk2MGOTPDK9liL94-G4zSQE6Ym_qVbU2LKrWIMs2CGmwgVQOrhfAOxRMgBOa__mv9LEmRec2jusOGQS1AO5WrLu9yH5caOtT5J-RZk5joc3jJACj1JOQJtrrOFQLsc5ggFPXk"
+                            alt="Admin"
+                            class="user-avatar">
                         <div class="user-details">
                             <p class="user-name">Cdt. Rakotoarisoa</p>
                             <p class="user-role">Admin Central</p>
@@ -73,10 +73,10 @@
                 </div>
             </div>
         </aside>
-        
+
         <!-- Main Content Area -->
         <main class="main-content">
-            
+
             <!-- Header -->
             <header class="top-header">
                 <div class="header-left">
@@ -95,13 +95,13 @@
                     </div>
                 </div>
             </header>
-            
+
             <!-- Dashboard Content -->
             <div class="content-area">
-                
+
                 <!-- KPI Summary Cards -->
                 <div class="row g-4 mb-4">
-                    
+
                     <!-- Total Needs -->
                     <div class="col-12 col-md-6 col-lg-3">
                         <div class="card kpi-card">
@@ -121,7 +121,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Donations Received -->
                     <div class="col-12 col-md-6 col-lg-3">
                         <div class="card kpi-card">
@@ -141,7 +141,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Remaining Gap -->
                     <div class="col-12 col-md-6 col-lg-3">
                         <div class="card kpi-card">
@@ -161,7 +161,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Satisfaction Rate -->
                     <div class="col-12 col-md-6 col-lg-3">
                         <div class="card kpi-card">
@@ -181,9 +181,9 @@
                             </div>
                         </div>
                     </div>
-                    
+
                 </div>
-                
+
                 <!-- Districts Table -->
                 <div class="card">
                     <div class="card-header">
@@ -221,7 +221,7 @@
                                             <button class="btn btn-sm btn-action">Consulter</button>
                                         </td>
                                     </tr>
-                                    
+
                                     <!-- Row 2 -->
                                     <tr>
                                         <td>
@@ -240,7 +240,7 @@
                                             <button class="btn btn-sm btn-action">Consulter</button>
                                         </td>
                                     </tr>
-                                    
+
                                     <!-- Row 3 -->
                                     <tr>
                                         <td>
@@ -259,7 +259,7 @@
                                             <button class="btn btn-sm btn-action">Consulter</button>
                                         </td>
                                     </tr>
-                                    
+
                                     <!-- Row 4 -->
                                     <tr>
                                         <td>
@@ -308,12 +308,45 @@
                         </nav>
                     </div>
                 </div>
-                
+                <section class="card border border-primary border-opacity-10 shadow-sm position-relative overflow-hidden">
+                    <div class="position-absolute end-0 top-0 h-100 w-25 opacity-10 pe-none">
+                        <i class="bi bi-lightning-charge-fill" style="font-size: 240px; color: var(--primary-color); transform: rotate(12deg);"></i>
+                    </div>
+
+                    <div class="card-body p-4 p-md-5">
+                        <div class="row align-items-center">
+                            <!-- Contenu principal -->
+                            <div class="col-12 col-lg-7 mb-4 mb-lg-0 position-relative" style="z-index: 10;">
+                                <h2 class="h3 fw-bold mb-3">Calculateur d'Allocation Optimale</h2>
+                                <p class="text-muted mb-0">
+                                    L'algorithme de dispatch analyse les stocks actuels et les besoins prioritaires déclarés pour
+                                    générer une route de distribution équitable et rapide.
+                                </p>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="col-12 col-lg-5 position-relative" style="z-index: 10;">
+                                <div class="d-flex align-items-center justify-content-lg-end gap-3">
+                                    <div class="text-end me-2 d-none d-md-block">
+                                        <small class="d-block text-muted fw-medium">Dernière simulation</small>
+                                        <small class="d-block fw-bold">Il y a 2 heures</small>
+                                    </div>
+                                    <button class="btn btn-primary btn-lg px-4 py-3 shadow d-flex align-items-center gap-2 >
+                                        <i class="bi bi-play-fill"></i>
+                                        <span class="fw-bold text-uppercase small">Lancer la simulation</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
+
         </main>
     </div>
-    
+
     <!-- Bootstrap JS Local -->
     <script src="assets/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
