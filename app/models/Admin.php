@@ -17,7 +17,7 @@ class Admin
         $password = $_POST['password'];
 
         if ($name === 'admin' && $password === 'admin123') {
-            $this->app->render('dashboard');
+            $this->app->render('/dashboard', ['admin' => $name]);
         } else {
            $this->app->render('/');
         }
