@@ -74,16 +74,28 @@ class Besoin
 
     public function resteAcombler()
     {
-        $totalBesoins = $this->totalBesoins();
+        // Total des besoins (en valeur)
+        $sqlBesoins = "SELECT SUM(vb.quantite * b.prix) AS total_besoins 
+                   FROM ville_besoin vb
+                   JOIN besoin b ON vb.id_besoin = b.id";
+        $stmt = $this->db->query($sqlBesoins);
+        $totalBesoins = $stmt->fetch()['total_besoins'] ?? 0;
 
-        $sql = "SELECT (d.total_dons - $totalBesoins) AS reste_a_combler
-                FROM valeur_don d";
-        $stmt = $this->db->query($sql);
+        // Total des dons reçus (en valeur)
+        $sqlDons = "SELECT SUM(d.quantite * b.prix) AS total_dons 
+                FROM don d
+                JOIN besoin b ON d.id_besoin = b.id";
+        $stmt = $this->db->query($sqlDons);
+        $totalDons = $stmt->fetch()['total_dons'] ?? 0;
 
-        $result = $stmt->fetch();
-        $totalDons = $result['reste_a_combler'] ?? 0;
+        // Total des achats effectués (en valeur)
+        $sqlAchats = "SELECT SUM(montant_total) AS total_achats FROM achat";
+        $stmt = $this->db->query($sqlAchats);
+        $totalAchats = $stmt->fetch()['total_achats'] ?? 0;
 
-        return max(0, $totalBesoins - $totalDons);
+        // Ce qui reste = besoins - (dons utilisables pour achats)
+        // Les dons en argent sont convertis en achats
+        return max(0, $totalBesoins - $totalAchats);
     }
 
     /// Besoins des sinistrés par ville
@@ -127,21 +139,18 @@ class Besoin
         return $result;
     }
 
-    public function getBesoinsByVille($villeId)
+    public function getDetailBesoinVille($ville_id = null)
     {
-        $sql = "SELECT 
-                vb.id,
-                b.nom,
-                vb.quantite,
-                vb.dateB
-            FROM ville_besoin vb
-            JOIN besoin b ON vb.id_besoin = b.id
-            WHERE vb.id_ville = ?
-            ORDER BY vb.dateB DESC";
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$villeId]);
-        return $stmt->fetchAll();
+        if ($ville_id) {
+            $sql = "SELECT * FROM detail_besoin_ville WHERE ville_id = ?";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$ville_id]);
+            return $stmt->fetchAll();
+        } else {
+            $sql = "SELECT * FROM detail_besoin_ville";
+            $stmt = $this->db->query($sql);
+            return $stmt->fetchAll();
+        }
     }
 
     public function ajouterBesoinVille($id_ville, $id_besoin, $quantite, $dateB)

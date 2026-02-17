@@ -524,10 +524,10 @@
                                                 class="amount"><?= number_format($besoin['quantite_restante'] ?? 0, 0, ',', ' ') ?></span>
                                             <span class="unit">restant</span>
                                         </div>
-                                        <div class="received">
+                                        <!-- <div class="received">
                                             <span class="text-success">Dons:
                                                 <?= number_format($besoin['don_recu'] ?? 0, 0, ',', ' ') ?></span>
-                                        </div>
+                                        </div> -->
                                         <div class="received">
                                             <span class="text-primary">Achats:
                                                 <?= number_format($besoin['achat_quantite'] ?? 0, 0, ',', ' ') ?></span>

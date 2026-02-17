@@ -295,8 +295,8 @@ function abrevVille($nomVille)
                                             <td>
                                                 <div class="donations-detail">
                                                     <small class="d-block text-success"><i class="bi bi-basket"></i>
-                                                        <?= $liste['besoin'] ?>:
-                                                        <?= $liste['quantite'] ?></small>
+                                                        <?= $liste['besoin'] ?? "Aucun don" ?>:
+                                                        <?= $liste['quantite'] ?? 0 ?></small>
                                                     <!-- <small class="d-block text-success"><i class="bi bi-tools"></i> Tôles:
                                                         300 unités</small>
                                                     <small class="d-block text-success"><i class="bi bi-cash"></i> Argent:
