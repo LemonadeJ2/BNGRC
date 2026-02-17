@@ -511,33 +511,40 @@
                         <!-- Besoins des villes -->
                         <div class="needs-section">
                             <?php foreach ($ville['besoins'] as $besoin): ?>
-                                <div class="need-item">
-                                    <div class="need-info">
-                                        <h4><?= htmlspecialchars($besoin['nom']) ?></h4>
-                                        <small class="text-muted">Original:
-                                            <?= number_format($besoin['quantite_originale'] ?? 0, 0, ',', ' ') ?></small>
-                                    </div>
-
-                                    <div class="need-amounts">
-                                        <div>
-                                            <span
-                                                class="amount"><?= number_format($besoin['quantite_restante'] ?? 0, 0, ',', ' ') ?></span>
-                                            <span class="unit">restant</span>
+                                <?php if ($besoin['quantite_originale'] != 0): ?>
+                                    <div class="need-item">
+                                        <div class="need-info">
+                                            <h4><?= htmlspecialchars($besoin['nom']) ?></h4>
+                                            <small class="text-muted">Original:
+                                                <?= number_format($besoin['quantite_originale'] ?? 0, 0, ',', ' ') ?></small>
                                         </div>
-                                        <!-- <div class="received">
+
+                                        <div class="need-amounts">
+                                            <div>
+                                                <span
+                                                    class="amount"><?= number_format($besoin['quantite_restante'] ?? 0, 0, ',', ' ') ?></span>
+                                                <span class="unit">restant</span>
+                                            </div>
+                                            <!-- <div class="received">
                                             <span class="text-success">Dons:
                                                 <?= number_format($besoin['don_recu'] ?? 0, 0, ',', ' ') ?></span>
                                         </div> -->
-                                        <div class="received">
-                                            <span class="text-primary">Achats:
-                                                <?= number_format($besoin['achat_quantite'] ?? 0, 0, ',', ' ') ?></span>
-                                        </div>
-                                        <div class="received text-info">
-                                            Total satisfait:
-                                            <?= number_format($besoin['quantite_satisfaite'] ?? 0, 0, ',', ' ') ?>
+                                            <div class="received">
+                                                <span class="text-primary">Achats:
+                                                    <?= number_format($besoin['achat_quantite'] ?? 0, 0, ',', ' ') ?></span>
+                                            </div>
+                                            <div class="received text-info">
+                                                Total satisfait:
+                                                <?= number_format($besoin['quantite_satisfaite'] ?? 0, 0, ',', ' ') ?>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                <?php endif; ?>
+                                <!-- <?php if ($besoin['quantite_originale'] == 0): ?>
+                                    <div class="text-center text-muted py-3">
+                                        Aucun besoin recensé pour cette ville
+                                    </div>
+                                <?php endif; ?> -->
                             <?php endforeach; ?>
 
                             <?php if (empty($ville['besoins'])): ?>
