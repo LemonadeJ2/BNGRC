@@ -38,15 +38,15 @@ $router->group('', function (Router $router) use ($app) {
 		$besoinController->dashboardWithTotal();
 	});
 
-	$router->get('/recapitulatif', function () use ($app) {
-		$recapController = new RecapController($app);
-		$recapController->showRecap();
-	});
+	//$router->get('/recapitulatif', function () use ($app) {
+	// 	$recapController = new RecapController($app);
+	// 	$recapController->showRecap();
+	// });
 
-	$router->get('/recapitulatif/data', function () use ($app) {
-		$recapController = new RecapController($app);
-		$recapController->dataApi();
-	});
+	// $router->get('/recapitulatif/data', function () use ($app) {
+	// 	$recapController = new RecapController($app);
+	// 	$recapController->dataApi();
+	// });
 
 	$router->get('/villes-impactees', function () use ($app) {
 		$villeController = new VilleController($app);
@@ -118,25 +118,25 @@ $router->group('', function (Router $router) use ($app) {
 		$achatController->pageAchats();
 	});
 
-	$router->get('/simulation', function () use ($app) {
-		$simulationController = new SimulationController($app);
-		$simulationController->page();
-	});
+	// $router->get('/simulation', function () use ($app) {
+	// 	$simulationController = new SimulationController($app);
+	// 	$simulationController->page();
+	// });
 
-	$router->post('/simulation/run', function () use ($app) {
-		$simulationController = new SimulationController($app);
-		$simulationController->simulate();
-	});
+	// $router->post('/simulation/run', function () use ($app) {
+	// 	$simulationController = new SimulationController($app);
+	// 	$simulationController->simulate();
+	// });
 
-	$router->post('/simulation/validate', function () use ($app) {
-		$simulationController = new SimulationController($app);
-		$simulationController->validate();
-	});
+	// $router->post('/simulation/validate', function () use ($app) {
+	// 	$simulationController = new SimulationController($app);
+	// 	$simulationController->validate();
+	// });
 
-	$router->post('/simulation/reset', function () use ($app) {
-		$simulationController = new SimulationController($app);
-		$simulationController->reset();
-	});
+	// $router->post('/simulation/reset', function () use ($app) {
+	// 	$simulationController = new SimulationController($app);
+	// 	$simulationController->reset();
+	// });
 
 	$router->post('/update-frais', function () use ($app) {
 		if (!isset($_SESSION['admin'])) {

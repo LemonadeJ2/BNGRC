@@ -146,7 +146,12 @@ class Simulation
             $stmtInsertAchat = $this->db->prepare($sqlInsertAchat);
 
             foreach ($achats as $achat) {
-                $typeSource = 'don_' . strtolower($achat['type_besoin']);
+                $typeSource = 'don_';
+                if (!empty($achat['type_besoin'])) {
+                    $typeSource .= strtolower($achat['type_besoin']);
+                } else {
+                    $typeSource .= 'inconnu';
+                }
                 $result = $stmtInsertAchat->execute([
                     $saveId,
                     $achat['id_ville'],
