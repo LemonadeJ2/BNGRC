@@ -3,12 +3,20 @@ namespace app\models;
 
 class Besoin
 {
-
     protected $db;
 
     public function __construct($db)
     {
         $this->db = $db;
+    }
+
+    // Retourne les besoins d'une ville (id, nom, quantite, date)
+    public function getBesoinsByVille($id_ville)
+    {
+        $sql = "SELECT b.id, b.nom, b.prix, b.id_type_besoin, vb.quantite, vb.dateB FROM ville_besoin vb INNER JOIN besoin b ON b.id = vb.id_besoin WHERE vb.id_ville = ? ORDER BY vb.dateB DESC, b.nom";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$id_ville]);
+        return $stmt->fetchAll();
     }
 
 

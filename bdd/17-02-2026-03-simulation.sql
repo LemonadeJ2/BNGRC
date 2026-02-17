@@ -20,18 +20,103 @@ SELECT COUNT(*) as nb_dons_actuels FROM don;
 -- Vérifier les besoins par ville
 SELECT COUNT(*) as nb_besoins_par_ville FROM ville_besoin;
 
--- ============================================
--- 2. DONNÉES DE TEST (si besoin de plus de données)
--- ============================================
 
--- Ajouter des dons supplémentaires pour plus de variété
--- (Sautez cette section si vous avez déjà assez de dons)
 
+
+-- Suppression des anciens dons
+DELETE FROM don;
+
+-- Insertion des nouveaux dons (ville par défaut: Toamasina id=1)
 INSERT INTO don (id_ville, id_besoin, nom_donneur, quantite, date_don) VALUES
-(1, 2, 'CARITAS International', 250, '2026-02-07'),
-(2, 5, 'Gouvernement Français', 100, '2026-02-08'),
-(3, 6, 'Association Locale', 80, '2026-02-09'),
-(5, 1, 'Programme Alimentaire Mondial', 300, '2026-02-10');
+-- argent
+    (1, 10, 'Donateur', 5000000, '2026-02-16'),
+    (1, 10, 'Donateur', 3000000, '2026-02-16'),
+    (1, 10, 'Donateur', 4000000, '2026-02-17'),
+    (1, 10, 'Donateur', 1500000, '2026-02-17'),
+    (1, 10, 'Donateur', 6000000, '2026-02-17'),
+-- nature
+    (1, 1, 'Donateur', 400, '2026-02-16'),
+    (1, 2, 'Donateur', 600, '2026-02-16'),
+    (1, 4, 'Donateur', 100, '2026-02-17'),
+    (1, 1, 'Donateur', 2000, '2026-02-18'),
+    (1, 2, 'Donateur', 5000, '2026-02-18'),
+    (1, 4, 'Donateur', 88, '2026-02-17'),
+-- materiel
+    (1, 5, 'Donateur', 50, '2026-02-17'),
+    (1, 6, 'Donateur', 70, '2026-02-17'),
+    (1, 5, 'Donateur', 300, '2026-02-18'),
+    (1, 6, 'Donateur', 500, '2026-02-19');
+
+-- ================= NOUVELLES DONNÉES DE SIMULATION =================
+-- Les besoins par ville (ville, date, ordre, categorie, libelle, prix_unitaire, quantite)
+-- On suppose que les tables ville, besoin, type_besoin existent déjà
+
+-- Nettoyage des anciennes données
+DELETE FROM ville_besoin;
+DELETE FROM besoin;
+DELETE FROM ville;
+DELETE FROM type_besoin;
+
+-- Catégories/types
+INSERT INTO type_besoin (id, type_besoin) VALUES
+    (1, 'nature'),
+    (2, 'materiel'),
+    (3, 'argent');
+
+-- Villes
+INSERT INTO ville (id, nom) VALUES
+    (1, 'Toamasina'),
+    (2, 'Mananjary'),
+    (3, 'Farafangana'),
+    (4, 'Nosy Be'),
+    (5, 'Morondava');
+
+-- Besoins (libelle, prix, type)
+INSERT INTO besoin (id, nom, prix, id_type_besoin) VALUES
+    (1, 'Riz (kg)', 3000, 1),
+    (2, 'Eau (L)', 1000, 1),
+    (3, 'Huile (L)', 6000, 1),
+    (4, 'Haricots', 4000, 1),
+    (5, 'Tôle', 25000, 2),
+    (6, 'Bâche', 15000, 2),
+    (7, 'Clous (kg)', 8000, 2),
+    (8, 'Bois', 10000, 2),
+    (9, 'groupe', 6750000, 2),
+    (10, 'Argent', 1, 3);
+
+-- Besoins par ville (ville, date, ordre, categorie, libelle, prix_unitaire, quantite)
+INSERT INTO ville_besoin (id_ville, id_besoin, dateB, quantite) VALUES
+-- Toamasina
+    (1, 1, '2026-02-16', 800),
+    (1, 2, '2026-02-15', 1500),
+    (1, 5, '2026-02-16', 120),
+    (1, 6, '2026-02-15', 200),
+    (1, 10, '2026-02-16', 12000000),
+    (1, 9, '2026-02-15', 3),
+-- Mananjary
+    (2, 1, '2026-02-15', 500),
+    (2, 3, '2026-02-16', 120),
+    (2, 5, '2026-02-15', 80),
+    (2, 7, '2026-02-16', 60),
+    (2, 10, '2026-02-15', 6000000),
+-- Farafangana
+    (3, 1, '2026-02-16', 600),
+    (3, 2, '2026-02-15', 1000),
+    (3, 6, '2026-02-16', 150),
+    (3, 8, '2026-02-15', 100),
+    (3, 10, '2026-02-16', 8000000),
+-- Nosy Be
+    (4, 1, '2026-02-15', 300),
+    (4, 4, '2026-02-16', 200),
+    (4, 5, '2026-02-15', 40),
+    (4, 7, '2026-02-16', 30),
+    (4, 10, '2026-02-15', 4000000),
+-- Morondava
+    (5, 1, '2026-02-16', 700),
+    (5, 2, '2026-02-15', 1200),
+    (5, 6, '2026-02-16', 180),
+    (5, 8, '2026-02-15', 150),
+    (5, 10, '2026-02-16', 10000000);
 
 -- ============================================
 -- 3. CALCULER LES STATISTIQUES ACTUELLES
@@ -42,7 +127,7 @@ SELECT
     SUM(d.quantite * b.prix) as total_dons_montant
 FROM don d
 JOIN besoin b ON d.id_besoin = b.id;
-
+u;s
 -- Total des besoins en montant
 SELECT 
     SUM(vb.quantite * b.prix) as total_besoins_montant
