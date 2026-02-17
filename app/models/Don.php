@@ -87,30 +87,30 @@ class Don
             }
 
             // Si c'est un don en argent (type 3)
-            if ($besoin['id_type_besoin'] == 3) {
-                $montant = $quantite; 
+            // if ($besoin['id_type_besoin'] == 3) {
+            //     $montant = $quantite; 
 
-                // Calculer la quantité équivalente en unités de besoin
-                $prix_unitaire_besoin = $besoin['prix']; // 60.000.000 Ar
-                $quantite_unite = $montant / $prix_unitaire_besoin;
+            //     // Calculer la quantité équivalente en unités de besoin
+            //     $prix_unitaire_besoin = $besoin['prix'];
+            //     $quantite_unite = $montant / $prix_unitaire_besoin;
 
-                error_log("Don en argent: montant=$montant Ar, équivalent=$quantite_unite unités");
+            //     error_log("Don en argent: montant=$montant Ar, équivalent=$quantite_unite unités");
 
-                // Insérer avec la quantité calculée
-                $sql = "INSERT INTO don (id_ville, id_besoin, nom_donneur, quantite, date_don) 
-                    VALUES (?, ?, ?, ?, ?)";
-                $stmt = $this->db->prepare($sql);
+            //     // Insérer avec la quantité calculée
+            //     $sql = "INSERT INTO don (id_ville, id_besoin, nom_donneur, quantite, date_don) 
+            //         VALUES (?, ?, ?, ?, ?)";
+            //     $stmt = $this->db->prepare($sql);
 
-                // Stocker la quantité en tant que DECIMAL dans la base
-                $result = $stmt->execute([$id_ville, $id_besoin, $donateur, $quantite_unite, $date_don]);
+            //     // Stocker la quantité en tant que DECIMAL dans la base
+            //     $result = $stmt->execute([$id_ville, $id_besoin, $donateur, $quantite_unite, $date_don]);
 
-            } else {
+            // } else {
                 // Don normal (nature ou matériel)
                 $sql = "INSERT INTO don (id_ville, id_besoin, nom_donneur, quantite, date_don) 
                     VALUES (?, ?, ?, ?, ?)";
                 $stmt = $this->db->prepare($sql);
                 $result = $stmt->execute([$id_ville, $id_besoin, $donateur, $quantite, $date_don]);
-            }
+            
 
             if ($result) {
                 error_log("Don inséré avec succès");

@@ -12,7 +12,7 @@ INSERT INTO besoin (nom, prix, id_type_besoin) VALUES
 ('Couverture de survie', 200000.00, 2),
 ("Kit médical d'urgence", 300000.00, 2),
 ('Vêtements chauds', 100000.00, 2),
-('Argent', 60000000, 3);
+('Argent', 1, 3);
 
 -- 3. Villes
 INSERT INTO ville (nom) VALUES

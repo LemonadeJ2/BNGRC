@@ -5,7 +5,7 @@ use Flight;
 use flight\Engine;
 use app\models\Besoin;
 use app\models\Ville;
-
+use \app\models\Achat;
 class BesoinController
 {
     protected Engine $app;
@@ -55,12 +55,60 @@ class BesoinController
         $totalBesoins = $this->besoinModel->totalBesoins();
         $totalDons = $this->donController->donRecus();
         $resteACombler = $this->besoinModel->resteAcombler();
+
+        // Récupérer TOUTES les villes
+        $toutesLesVilles = $this->villeModel->getAllVilles();
+
+        // Récupérer les dons par ville
         $donsAttribues = $this->donController->listeDonsAttribuesParVille();
 
-        foreach ($donsAttribues as &$ville) {
-            $nb = $this->besoinModel->nbBesoinsParVille($ville['id']);
-            $ville['nb_besoins'] = $nb['nb_besoins'] ?? 0;
-            $ville['liste_besoins'] = $this->besoinModel->listeBesoinsParVille($ville['id']);
+        // Organiser les dons par ID de ville (plusieurs dons par ville possible)
+        $donsParVille = [];
+        foreach ($donsAttribues as $don) {
+            $villeId = $don['id'];
+            if (!isset($donsParVille[$villeId])) {
+                $donsParVille[$villeId] = [
+                    'dons' => [],
+                    'total_quantite' => 0
+                ];
+            }
+            $donsParVille[$villeId]['dons'][] = $don;
+            $donsParVille[$villeId]['total_quantite'] += $don['quantite'];
+        }
+
+        // Construire le tableau $donParVille avec TOUTES les villes
+        $donParVille = [];
+        foreach ($toutesLesVilles as $ville) {
+            $villeId = $ville['id'];
+
+            // Récupérer les besoins pour cette ville
+            $nb = $this->besoinModel->nbBesoinsParVille($villeId);
+            $listeBesoins = $this->besoinModel->getDetailBesoinVille($villeId);
+
+            // Préparer les informations de dons
+            if (isset($donsParVille[$villeId])) {
+                // La ville a des dons
+                foreach ($donsParVille[$villeId]['dons'] as $don) {
+                    $donParVille[] = [
+                        'id' => $villeId,
+                        'ville' => $ville['nom'],
+                        'nb_besoins' => $nb['nb_besoins'] ?? 0,
+                        'liste_besoins' => $listeBesoins,
+                        'besoin' => $don['besoin'],
+                        'quantite' => $don['quantite']
+                    ];
+                }
+            } else {
+                // La ville n'a pas de dons
+                $donParVille[] = [
+                    'id' => $villeId,
+                    'ville' => $ville['nom'],
+                    'nb_besoins' => $nb['nb_besoins'] ?? 0,
+                    'liste_besoins' => $listeBesoins,
+                    'besoin' => 'Aucun don',
+                    'quantite' => 0
+                ];
+            }
         }
 
         $admin = $_SESSION['admin'] ?? null;
@@ -69,9 +117,10 @@ class BesoinController
             'totalBesoins' => $totalBesoins,
             'totalDons' => $totalDons,
             'resteACombler' => $resteACombler,
-            'donParVille' => $donsAttribues,
+            'donParVille' => $donParVille,
             'admin' => $admin
         ]);
     }
 }
+
 ?>

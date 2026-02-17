@@ -337,7 +337,7 @@
                 <div class="summary-stats">
                     <div class="stat-card">
                         <div class="stat-label">Dons disponibles</div>
-                        <div class="stat-value"><?= number_format($donsRestants, 0, ',', ' ') ?> Ar</div>
+                        <div class="stat-value"><?= $donsRestants > 0 ? number_format($donsRestants, 0, ',', ' ') : 0?> Ar</div>
                         <div class="stat-detail">Montant total des dons reçus</div>
                     </div>
                     <div class="stat-card">
