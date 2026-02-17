@@ -277,13 +277,15 @@
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
                     <div>
                         <h1 style="margin: 0; font-size: 2rem; font-weight: 700;">Simulation de distribution</h1>
-                        <p style="margin: 0.5rem 0 0 0; color: var(--text-light);">Testez différents scénarios de distribution avant validation</p>
+                        <p style="margin: 0.5rem 0 0 0; color: var(--text-light);">Testez différents scénarios de
+                            distribution avant validation</p>
                     </div>
                 </div>
 
                 <!-- Messages d'alerte -->
                 <?php if (isset($_SESSION['message'])): ?>
-                    <div class="alert alert-<?= $_SESSION['message_type'] === 'success' ? 'success' : 'danger' ?> alert-dismissible fade show" role="alert">
+                    <div class="alert alert-<?= $_SESSION['message_type'] === 'success' ? 'success' : 'danger' ?> alert-dismissible fade show"
+                        role="alert">
                         <?= $_SESSION['message'] ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
@@ -304,14 +306,16 @@
                                     Lancée le <?= date('d/m/Y à H:i', strtotime($donnees['simulation']['date_save'])) ?>
                                 </small>
                             </div>
-                            <span class="badge-simulation"><?= htmlspecialchars($donnees['simulation']['description']) ?></span>
+                            <span
+                                class="badge-simulation"><?= htmlspecialchars($donnees['simulation']['description']) ?></span>
                         </div>
                     </div>
 
                     <!-- Actions -->
                     <div class="action-bar">
                         <form method="post" action="/simulation/simuler" style="display: inline;">
-                            <input type="hidden" name="description" value="<?= htmlspecialchars($donnees['simulation']['description']) ?>">
+                            <input type="hidden" name="description"
+                                value="<?= htmlspecialchars($donnees['simulation']['description']) ?>">
                             <button type="submit" class="btn-simuler">
                                 <i class="bi bi-arrow-repeat"></i>
                                 Relancer la simulation
@@ -320,13 +324,15 @@
 
                         <?php if (!empty($donnees['resultats'])): ?>
                             <form method="post" action="/simulation/valider" style="display: inline;">
-                                <button type="submit" class="btn-valider" onclick="return confirm('Êtes-vous sûr de vouloir valider cette distribution?');">
+                                <button type="submit" class="btn-valider"
+                                    onclick="return confirm('Êtes-vous sûr de vouloir valider cette distribution?');">
                                     <i class="bi bi-check-circle"></i>
                                     Valider la distribution
                                 </button>
                             </form>
 
-                            <a href="/simulation/reinitialiser" class="btn-reinit" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette simulation?');">
+                            <a href="/simulation/reinitialiser" class="btn-reinit"
+                                onclick="return confirm('Êtes-vous sûr de vouloir annuler cette simulation?');">
                                 <i class="bi bi-arrow-counterclockwise"></i>
                                 Annuler la simulation
                             </a>
@@ -488,7 +494,8 @@
                         <div class="simulation-body text-center py-5">
                             <i class="bi bi-calculator" style="font-size: 4rem; color: var(--text-light);"></i>
                             <h4 class="mt-3">Aucune simulation en cours</h4>
-                            <p class="text-muted">Cliquez sur "Lancer la simulation" pour tester différentes distributions</p>
+                            <p class="text-muted">Cliquez sur "Lancer la simulation" pour tester différentes distributions
+                            </p>
                             <form method="post" action="/simulation/simuler" style="display: inline;">
                                 <input type="hidden" name="description" value="Simulation <?= date('d/m/Y H:i') ?>">
                                 <button type="submit" class="btn-simuler mt-3">
@@ -567,8 +574,4 @@
     </script>
 </body>
 
-<<<<<<< HEAD
 </html>
-=======
-</html>
->>>>>>> origin/rova_metier
