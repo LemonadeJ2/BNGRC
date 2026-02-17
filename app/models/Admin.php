@@ -6,21 +6,17 @@ class Admin
 
     protected $db;
 
-    public function _construct($db)
+    public function __construct($db)
     {
         $this->db = $db;
     }
 
-    public function loginAdmin()
+    public function loginAdmin($name, $password)
     {
-        $name = $_POST['name'];
-        $password = $_POST['password'];
-
         if ($name === 'admin' && $password === 'admin123') {
-            $this->app->render('/dashboard', ['admin' => $name]);
-        } else {
-           $this->app->render('/');
-        }
+            return true;
+        } 
+        return false;
     }
 }
 ?>

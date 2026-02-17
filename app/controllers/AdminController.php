@@ -17,8 +17,19 @@
 
         public function loginAdmin()
         {
-            $admin = $this->adminModel;
-            $this->app->render('dashboard.php', ['admin' => $admin]);
+            $name = $_POST['name'];
+            $password = $_POST['password'];
+            if ($this->adminModel->loginAdmin($name, $password)) {
+                $_SESSION['admin'] = $name;
+                $this->app->redirect('/dashboard');
+            } else {
+                $this->app->render('login_admin', ['error' => 'Nom d\'utilisateur ou mot de passe incorrect']);
+            }
+        }
+
+        public function isLoggedIn()
+        {
+            return isset($_SESSION['admin']);
         }
     }
 ?>
