@@ -23,6 +23,7 @@ class Simulation
             // 1. Créer un point de sauvegarde
             $sql = "INSERT INTO sim_save (date_save, user_id, description) VALUES (NOW(), ?, ?)";
             $stmt = $this->db->prepare($sql);
+<<<<<<< HEAD
 
             if (!$stmt) {
                 throw new \Exception("Erreur préparation requête sim_save");
@@ -32,11 +33,23 @@ class Simulation
 
             if (!$result) {
                 throw new \Exception("Erreur exécution INSERT sim_save");
+=======
+            
+            if (!$stmt) {
+                throw new \Exception("Erreur préparation sim_save: " . print_r($this->db->errorInfo(), true));
+            }
+            
+            $result = $stmt->execute([$userId, $description]);
+            
+            if (!$result) {
+                throw new \Exception("Erreur exécution sim_save: " . print_r($stmt->errorInfo(), true));
+>>>>>>> origin/rova_metier
             }
 
             $saveId = $this->db->lastInsertId();
             error_log("SaveId créé: " . $saveId);
 
+<<<<<<< HEAD
             // 2. Sauvegarder TOUS LES DONS actuels
             $sqlDons = "SELECT 
                             d.id,
@@ -167,6 +180,63 @@ class Simulation
             }
 
             error_log("Achats sauvegardés avec succès");
+=======
+            // 2. Sauvegarder les dons
+            $sql = "INSERT INTO sim_don (id_save, id_don, id_ville, id_besoin, nom_donneur, quantite, montant, type_besoin)
+                    SELECT ?, id, id_ville, id_besoin, nom_donneur, quantite, 
+                           quantite * (SELECT prix FROM besoin WHERE id = don.id_besoin) AS montant,
+                           (SELECT type_besoin FROM type_besoin WHERE id = (SELECT id_type_besoin FROM besoin WHERE id = don.id_besoin))
+                    FROM don";
+            $stmt = $this->db->prepare($sql);
+            
+            if (!$stmt) {
+                throw new \Exception("Erreur préparation sim_don: " . print_r($this->db->errorInfo(), true));
+            }
+            
+            $result = $stmt->execute([$saveId]);
+            
+            if (!$result) {
+                throw new \Exception("Erreur exécution sim_don: " . print_r($stmt->errorInfo(), true));
+            }
+            
+            $rowCount = $stmt->rowCount();
+            error_log("Dons sauvegardés: $rowCount lignes");
+
+            // 3. Sauvegarder les besoins
+            $sql = "INSERT INTO sim_besoin (id_save, id_ville_besoin, id_ville, id_besoin, quantite, prix_unitaire, type_besoin)
+                    SELECT ?, id, id_ville, id_besoin, quantite, 
+                           (SELECT prix FROM besoin WHERE id = ville_besoin.id_besoin) AS prix_unitaire,
+                           (SELECT type_besoin FROM type_besoin WHERE id = (SELECT id_type_besoin FROM besoin WHERE id = ville_besoin.id_besoin))
+                    FROM ville_besoin";
+            $stmt = $this->db->prepare($sql);
+            
+            if (!$stmt) {
+                throw new \Exception("Erreur préparation sim_besoin: " . print_r($this->db->errorInfo(), true));
+            }
+            
+            $result = $stmt->execute([$saveId]);
+            
+            if (!$result) {
+                throw new \Exception("Erreur exécution sim_besoin: " . print_r($stmt->errorInfo(), true));
+            }
+            
+            $rowCount = $stmt->rowCount();
+            error_log("Besoins sauvegardés: $rowCount lignes");
+
+            // 4. Sauvegarder les achats (optionnel)
+            try {
+                $sql = "INSERT INTO sim_achat (id_save, id_ville, id_besoin, quantite, montant_total, type_source)
+                        SELECT ?, id_ville, id_besoin, quantite, montant_total, 'don_argent'
+                        FROM achat";
+                $stmt = $this->db->prepare($sql);
+                if ($stmt) {
+                    $stmt->execute([$saveId]);
+                    $rowCount = $stmt->rowCount();
+                    error_log("Achats sauvegardés: $rowCount lignes");
+                }
+            } catch (\Exception $e) {
+                error_log("Note: Table achat peut-être vide: " . $e->getMessage());
+            }
 
             $this->db->commit();
             error_log("=== SAUVEGARDE RÉUSSIE - ID: $saveId ===");
@@ -174,99 +244,7 @@ class Simulation
 
         } catch (\Exception $e) {
             $this->db->rollBack();
-            error_log("Exception dans sauvegarderEtatAvant: " . $e->getMessage());
-            error_log("Trace: " . $e->getTraceAsString());
-            return false;
-        }
-    }
-
-    // === ALGORITHME DE SIMULATION ===
-
-    public function lancerSimulation($saveId)
-    {
-        try {
-            error_log("=== DÉBUT ALGORITHME SIMULATION ===");
-            error_log("SaveId: $saveId");
-
-            // Récupérer tous les besoins de cette sauvegarde
-            $sqlBesoins = "SELECT * FROM sim_besoin WHERE id_save = ? ORDER BY id_ville, id_besoin";
-            $stmtBesoins = $this->db->prepare($sqlBesoins);
-            $stmtBesoins->execute([$saveId]);
-            $besoins = $stmtBesoins->fetchAll();
-            
-            error_log("Nombre de besoins à distribuer: " . count($besoins));
-
-            // Récupérer tous les dons de cette sauvegarde
-            $sqlDons = "SELECT * FROM sim_don WHERE id_save = ? ORDER BY type_besoin, id_don";
-            $stmtDons = $this->db->prepare($sqlDons);
-            $stmtDons->execute([$saveId]);
-            $dons = $stmtDons->fetchAll();
-            
-            error_log("Nombre de dons disponibles: " . count($dons));
-
-            // Créer une copie mutable des dons
-            $donsRestants = [];
-            foreach ($dons as $don) {
-                $donsRestants[$don['id_don']] = [
-                    'quantite' => $don['quantite'],
-                    'montant' => $don['montant'],
-                    'type_besoin' => $don['type_besoin'],
-                    'nom_donneur' => $don['nom_donneur']
-                ];
-            }
-
-            // Algo: Assigner les dons aux besoins par ordre de saisie
-            $distributions = [];
-            $compteur = 0;
-
-            foreach ($besoins as $besoin) {
-                $quantiteRestante = $besoin['quantite'];
-                
-                error_log("Besoin: ville={$besoin['id_ville']}, besoin={$besoin['id_besoin']}, type={$besoin['type_besoin']}, quantité={$quantiteRestante}");
-
-                // Chercher les dons du même type
-                foreach ($dons as $don) {
-                    if ($quantiteRestante <= 0) break;
-
-                    // Le don doit être du même type et avoir une quantité restante > 0
-                    if (isset($donsRestants[$don['id_don']]) && 
-                        $donsRestants[$don['id_don']]['quantite'] > 0 &&
-                        $don['type_besoin'] == $besoin['type_besoin']) {
-
-                        $quantitePrelevee = min($donsRestants[$don['id_don']]['quantite'], $quantiteRestante);
-                        $montantUtilise = $quantitePrelevee * $besoin['prix_unitaire'];
-
-                        error_log("  -> Don utilisé: id_don={$don['id_don']}, quantité=$quantitePrelevee, montant=$montantUtilise");
-
-                        // Sauvegarder le résultat
-                        $this->sauvegarderResultatSimulation(
-                            $saveId,
-                            $besoin['id_ville'],
-                            $besoin['id_besoin'],
-                            $quantitePrelevee,
-                            "Don de " . ($don['nom_donneur'] ?? 'Anonyme'),
-                            $montantUtilise
-                        );
-
-                        // Mettre à jour les dons restants
-                        $donsRestants[$don['id_don']]['quantite'] -= $quantitePrelevee;
-                        $quantiteRestante -= $quantitePrelevee;
-                        $compteur++;
-                    }
-                }
-
-                // Si besoin non satisfait, le marquer
-                if ($quantiteRestante > 0) {
-                    error_log("  ⚠️ BESOIN NON SATISFAIT: {$quantiteRestante} unités manquantes");
-                }
-            }
-
-            error_log("=== SIMULATION TERMINÉE: $compteur distributions créées ===");
-            return true;
-
-        } catch (\Exception $e) {
-            error_log("Erreur simulation: " . $e->getMessage());
-            error_log("Trace: " . $e->getTraceAsString());
+            error_log("ERREUR dans sauvegarderEtatAvant: " . $e->getMessage());
             return false;
         }
     }
@@ -285,7 +263,11 @@ class Simulation
 
     public function getDonsBySave($saveId)
     {
+<<<<<<< HEAD
         $sql = "SELECT * FROM sim_don WHERE id_save = ? ORDER BY type_besoin, id_don";
+=======
+        $sql = "SELECT * FROM sim_don WHERE id_save = ?";
+>>>>>>> origin/rova_metier
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$saveId]);
         return $stmt->fetchAll();
@@ -293,7 +275,11 @@ class Simulation
 
     public function getBesoinsBySave($saveId)
     {
+<<<<<<< HEAD
         $sql = "SELECT * FROM sim_besoin WHERE id_save = ? ORDER BY id_ville, id_besoin";
+=======
+        $sql = "SELECT * FROM sim_besoin WHERE id_save = ?";
+>>>>>>> origin/rova_metier
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$saveId]);
         return $stmt->fetchAll();
@@ -309,6 +295,7 @@ class Simulation
 
     public function getResultatsBySave($saveId)
     {
+<<<<<<< HEAD
         $sql = "SELECT * FROM sim_resultat WHERE id_save = ? ORDER BY id_ville, id_besoin";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$saveId]);
@@ -317,6 +304,12 @@ class Simulation
         error_log("getResultatsBySave($saveId) retourne " . count($resultats) . " résultats");
 
         return $resultats;
+=======
+        $sql = "SELECT * FROM sim_resultat WHERE id_save = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$saveId]);
+        return $stmt->fetchAll();
+>>>>>>> origin/rova_metier
     }
 
     public function getDerniereSauvegarde($userId)
@@ -342,6 +335,7 @@ class Simulation
 
             // 1. Réduire les quantités de DONS
             foreach ($resultats as $resultat) {
+<<<<<<< HEAD
                 // Récupérer le don original
                 $sqlDon = "SELECT id FROM don WHERE id_ville = ? AND id_besoin = ?";
                 $stmtDon = $this->db->prepare($sqlDon);
@@ -358,6 +352,17 @@ class Simulation
                     ]);
                     error_log("Don réduit: id={$don['id']}, quantité -{$resultat['quantite_proposee']}");
                 }
+                    
+                $sqlUpdate = "UPDATE don SET quantite = quantite - ? 
+                            WHERE id_ville = ? AND id_besoin = ? AND quantite >= ?";
+                $stmtUpdate = $this->db->prepare($sqlUpdate);
+                $stmtUpdate->execute([
+                    $resultat['quantite_proposee'],
+                    $resultat['id_ville'],
+                    $resultat['id_besoin'],
+                    $resultat['quantite_proposee']
+                ]);
+>>>>>>> origin/rova_metier
             }
 
             // 2. Réduire les quantités de BESOINS
@@ -371,7 +376,25 @@ class Simulation
                     $resultat['id_besoin'],
                     $resultat['quantite_proposee']
                 ]);
+<<<<<<< HEAD
                 error_log("Besoin réduit: ville={$resultat['id_ville']}, besoin={$resultat['id_besoin']}, quantité -{$resultat['quantite_proposee']}");
+=======
+            }
+
+            // 3. Créer des achats si nécessaire
+            foreach ($resultats as $resultat) {
+                if (strpos($resultat['provenance'], 'Achat') !== false) {
+                    $sqlInsert = "INSERT INTO achat (id_ville, id_besoin, quantite, montant_total, date_achat)
+                                VALUES (?, ?, ?, ?, NOW())";
+                    $stmtInsert = $this->db->prepare($sqlInsert);
+                    $stmtInsert->execute([
+                        $resultat['id_ville'],
+                        $resultat['id_besoin'],
+                        $resultat['quantite_proposee'],
+                        $resultat['montant_utilise']
+                    ]);
+                }
+>>>>>>> origin/rova_metier
             }
 
             $this->db->commit();
@@ -406,7 +429,11 @@ class Simulation
                 throw new \Exception("Aucune sauvegarde trouvée");
             }
 
+<<<<<<< HEAD
             error_log("Sauvegarde trouvée: id={$save['id']}, date={$save['date_save']}");
+=======
+            error_log("Sauvegarde trouvée: id={$save['id']}");
+>>>>>>> origin/rova_metier
 
             // Restaurer les dons
             $sqlDons = "SELECT * FROM sim_don WHERE id_save = ?";
@@ -418,7 +445,10 @@ class Simulation
                 $sqlUpdate = "UPDATE don SET quantite = ? WHERE id = ?";
                 $stmtUpdate = $this->db->prepare($sqlUpdate);
                 $stmtUpdate->execute([$donSauv['quantite'], $donSauv['id_don']]);
+<<<<<<< HEAD
                 error_log("Don restauré: id={$donSauv['id_don']}, quantité={$donSauv['quantite']}");
+=======
+>>>>>>> origin/rova_metier
             }
 
             // Restaurer les besoins
@@ -431,6 +461,7 @@ class Simulation
                 $sqlUpdate = "UPDATE ville_besoin SET quantite = ? WHERE id = ?";
                 $stmtUpdate = $this->db->prepare($sqlUpdate);
                 $stmtUpdate->execute([$besoinSauv['quantite'], $besoinSauv['id_ville_besoin']]);
+<<<<<<< HEAD
                 error_log("Besoin restauré: id={$besoinSauv['id_ville_besoin']}, quantité={$besoinSauv['quantite']}");
             }
 
@@ -439,6 +470,14 @@ class Simulation
             $stmtDelete = $this->db->prepare($sqlDelete);
             $stmtDelete->execute([$save['date_save']]);
             error_log("Achats supprimés après la sauvegarde");
+=======
+            }
+
+            // Supprimer les achats créés après la sauvegarde
+            $sqlDelete = "DELETE FROM achat WHERE date_achat > ?";
+            $stmtDelete = $this->db->prepare($sqlDelete);
+            $stmtDelete->execute([$save['date_save']]);
+>>>>>>> origin/rova_metier
 
             $this->db->commit();
             error_log("=== RÉINITIALISATION RÉUSSIE ===");
@@ -451,6 +490,7 @@ class Simulation
         }
     }
 
+<<<<<<< HEAD
     // === NETTOYAGE ===
 
     public function nettoyerAnciennesSimulations($userId)
@@ -460,6 +500,8 @@ class Simulation
         return $stmt->execute([$userId]);
     }
 
+=======
+>>>>>>> origin/rova_metier
     public function getDonsDisponibles($saveId)
     {
         $sql = "SELECT sd.*, 
@@ -475,5 +517,8 @@ class Simulation
         return $stmt->fetchAll();
     }
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/rova_metier
 ?>
