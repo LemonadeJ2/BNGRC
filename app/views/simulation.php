@@ -187,49 +187,15 @@
         }
 
         .progress-fill {
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
             height: 100%;
-            background-color: var(--primary-color);
-            border-radius: 4px;
+            transition: width 0.3s ease;
         }
 
-        .text-success {
-            color: #10b981;
-        }
-
-        .text-warning {
-            color: #f59e0b;
-        }
-
-        .text-danger {
-            color: #ef4444;
-        }
-
-        .alert {
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .comparaison {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .avant,
-        .apres {
-            flex: 1;
-            text-align: center;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-        }
-
-        .avant {
-            background-color: #f1f5f9;
-        }
-
-        .apres {
-            background-color: var(--primary-light);
+        .stat-detail {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
         }
 
         @media (max-width: 768px) {
@@ -252,7 +218,7 @@
 </head>
 
 <body>
-    <div class="dashboard-wrapper">
+    <div class="wrapper">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -284,7 +250,7 @@
                 </a>
                 <a href="/simulation" class="nav-item active">
                     <i class="bi bi-graph-up-arrow"></i>
-                    <span>Simulations</span>
+                    <span>Simulations </span>
                 </a>
             </nav>
 
@@ -295,119 +261,117 @@
                         <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_-BQEaeqadqYV_rHUDoRWHl5FlgJ7tGDeLrC-WjewY2YfXn8GJ7_hE0ifle9JTUd2Nx1aQh8nvxZmDHebyKjKiPkzE-8XjG5cFp91F_EUiM6wZ1P2ufP8REYOvBFvVskpWCLBNOnk2MGOTPDK9liL94-G4zSQE6Ym_qVbU2LKrWIMs2CGmwgVQOrhfAOxRMgBOa__mv9LEmRec2jusOGQS1AO5WrLu9yH5caOtT5J-RZk5joc3jJACj1JOQJtrrOFQLsc5ggFPXk"
                             alt="Admin" class="user-avatar">
                         <div class="user-details">
-                            <p class="user-name"><?= $admin ?></p>
+                            <p class="user-name">
+                                <?= $admin ?>
+                            </p>
                             <p class="user-role">Admin Central</p>
                         </div>
                     </div>
                 </div>
             </div>
         </aside>
-
-        <!-- Main Content Area -->
+        <!-- Main content -->
         <main class="main-content">
-            <!-- Header -->
-            <header class="top-header">
-                <div class="header-left">
-                    <h2>Simulation de distribution</h2>
-                    <span class="badge badge-live">Test & Validation</span>
-                </div>
-                <!-- <div class="header-right">
-                    <div class="notification-icon">
-                        <i class="bi bi-bell"></i>
-                        <span class="notification-badge">3</span>
+            <div class="container-fluid p-4">
+                <!-- Header -->
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
+                    <div>
+                        <h1 style="margin: 0; font-size: 2rem; font-weight: 700;">Simulation de distribution</h1>
+                        <p style="margin: 0.5rem 0 0 0; color: var(--text-light);">Testez différents scénarios de distribution avant validation</p>
                     </div>
-                    <div class="header-divider"></div>
-                    <a href="/logout" class="settings-link text-decoration-none">
-                        <span>Déconnexion</span>
-                        <i class="bi bi-box-arrow-right"></i>
-                    </a>
-                </div> -->
-            </header>
+                </div>
 
-            <!-- Content Area -->
-            <div class="content-area">
-                <!-- Messages flash -->
+                <!-- Messages d'alerte -->
                 <?php if (isset($_SESSION['message'])): ?>
-                    <div class="alert alert-<?= $_SESSION['message_type'] ?> alert-dismissible fade show" role="alert">
+                    <div class="alert alert-<?= $_SESSION['message_type'] === 'success' ? 'success' : 'danger' ?> alert-dismissible fade show" role="alert">
                         <?= $_SESSION['message'] ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     <?php
                     unset($_SESSION['message']);
                     unset($_SESSION['message_type']);
-                endif;
-                ?>
+                    ?>
+                <?php endif; ?>
 
-                <!-- Barre d'actions -->
-                <div class="action-bar">
-                    <form method="post" action="/simulation/simuler" style="display: inline;">
-                        <input type="hidden" name="description" value="Simulation <?= date('d/m/Y H:i') ?>">
-                        <button type="submit" class="btn-simuler">
-                            <i class="bi bi-play-fill"></i>
-                            Lancer la simulation
-                        </button>
-                    </form>
-
-                    <?php if (isset($donnees['simulation'])): ?>
-                        <form method="post" action="/simulation/valider" style="display: inline;">
-                            <button type="submit" class="btn-valider">
-                                <i class="bi bi-check-lg"></i>
-                                Valider la distribution
-                            </button>
-                        </form>
-
-                        <a href="/simulation/reinitialiser" class="btn-reinit"
-                            onclick="return confirm('Réinitialiser la simulation ?')">
-                            <i class="bi bi-arrow-counterclockwise"></i>
-                            Réinitialiser
-                        </a>
-                    <?php endif; ?>
-                </div>
-
-                <?php if (isset($donnees['simulation'])): ?>
-                    <!-- En-tête de simulation -->
+                <!-- État de la simulation -->
+                <?php if (isset($donnees['simulation']) && $donnees['simulation']): ?>
+                    <!-- Simulation en cours -->
                     <div class="simulation-card">
                         <div class="simulation-header">
-                            <h3>
-                                <i class="bi bi-diagram-3 me-2" style="color: var(--primary-color);"></i>
-                                Simulation en cours
-                            </h3>
-                            <span class="badge-simulation">
-                                <?= date('d/m/Y H:i', strtotime($donnees['simulation']['date_save'])) ?>
-                            </span>
-                        </div>
-                        <div class="simulation-body">
-                            <p><?= htmlspecialchars($donnees['simulation']['description']) ?></p>
+                            <div>
+                                <h3>Simulation en cours</h3>
+                                <small style="color: var(--text-light);">
+                                    Lancée le <?= date('d/m/Y à H:i', strtotime($donnees['simulation']['date_save'])) ?>
+                                </small>
+                            </div>
+                            <span class="badge-simulation"><?= htmlspecialchars($donnees['simulation']['description']) ?></span>
                         </div>
                     </div>
 
-                    <!-- Statistiques de la simulation -->
+                    <!-- Actions -->
+                    <div class="action-bar">
+                        <form method="post" action="/simulation/simuler" style="display: inline;">
+                            <input type="hidden" name="description" value="<?= htmlspecialchars($donnees['simulation']['description']) ?>">
+                            <button type="submit" class="btn-simuler">
+                                <i class="bi bi-arrow-repeat"></i>
+                                Relancer la simulation
+                            </button>
+                        </form>
+
+                        <?php if (!empty($donnees['resultats'])): ?>
+                            <form method="post" action="/simulation/valider" style="display: inline;">
+                                <button type="submit" class="btn-valider" onclick="return confirm('Êtes-vous sûr de vouloir valider cette distribution?');">
+                                    <i class="bi bi-check-circle"></i>
+                                    Valider la distribution
+                                </button>
+                            </form>
+
+                            <a href="/simulation/reinitialiser" class="btn-reinit" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette simulation?');">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                                Annuler la simulation
+                            </a>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Statistiques -->
                     <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Besoins totaux</div>
+                            <div class="stat-value">
+                                <?php
+                                $totalBesoins = 0;
+                                foreach ($donnees['besoinsRestants'] as $b) {
+                                    $totalBesoins += $b['quantite'] * $b['prix_unitaire'];
+                                }
+                                echo number_format($totalBesoins, 0, ',', ' ');
+                                ?>
+                                <small>Ar</small>
+                            </div>
+                            <div class="stat-detail"><?= count($donnees['besoinsRestants']) ?? 0 ?> besoins restants</div>
+                        </div>
                         <div class="stat-card">
                             <div class="stat-label">Dons disponibles</div>
                             <div class="stat-value">
-                                <?= number_format(array_sum(array_column($donnees['donsDispos'] ?? [], 'montant')), 0, ',', ' ') ?>
-                                Ar
+                                <?php
+                                $totalDons = 0;
+                                foreach ($donnees['donsDispos'] as $d) {
+                                    $totalDons += $d['montant'];
+                                }
+                                echo number_format($totalDons, 0, ',', ' ');
+                                ?>
+                                <small>Ar</small>
                             </div>
                             <div class="stat-detail"><?= count($donnees['donsDispos'] ?? []) ?> dons</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Besoins restants</div>
-                            <div class="stat-value">
-                                <?= count($donnees['besoinsRestants'] ?? []) ?>
-                            </div>
-                            <div class="stat-detail">Non satisfaits</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-label">Distribution proposée</div>
                             <div class="stat-value">
                                 <?= count($donnees['resultats'] ?? []) ?>
                             </div>
-                            <div class="stat-detail">Actions</div>
+                            <div class="stat-detail">Actions de distribution</div>
                         </div>
                     </div>
 
-                    <!-- Résultats de la simulation par ville -->
                     <!-- Résultats de la simulation par ville -->
                     <div class="simulation-card">
                         <div class="simulation-header">
@@ -463,52 +427,58 @@
                         </div>
                     </div>
 
-                    <!-- Dons disponibles -->
+                    <!-- Dons disponibles après simulation -->
                     <div class="simulation-card mt-4">
                         <div class="simulation-header">
-                            <h3>Dons disponibles après simulation</h3>
+                            <h3>Dons disponibles</h3>
                         </div>
                         <div class="simulation-body">
-                            <div class="table-responsive">
-                                <table class="table-simulation">
-                                    <thead>
-                                        <tr>
-                                            <th>Type</th>
-                                            <th>Donneur</th>
-                                            <th>Montant initial</th>
-                                            <th>Montant restant</th>
-                                            <th>Utilisation</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($donnees['donsDispos'] as $don): ?>
+                            <?php if (!empty($donnees['donsDispos'])): ?>
+                                <div class="table-responsive">
+                                    <table class="table-simulation">
+                                        <thead>
                                             <tr>
-                                                <td><?= $don['type_besoin'] ?? 'N/A' ?></td>
-                                                <td><?= htmlspecialchars($don['nom_donneur'] ?? 'Anonyme') ?></td>
-                                                <td><?= number_format($don['montant'], 0, ',', ' ') ?> Ar</td>
-                                                <td class="text-success">
-                                                    <?= number_format($don['montant_restant'], 0, ',', ' ') ?> Ar</td>
-                                                <td>
-                                                    <?php
-                                                    $pourcentage = ($don['montant'] - $don['montant_restant']) / $don['montant'] * 100;
-                                                    ?>
-                                                    <div class="progress-simulation">
-                                                        <div class="progress-fill" style="width: <?= $pourcentage ?>%"></div>
-                                                    </div>
-                                                </td>
+                                                <th>Type</th>
+                                                <th>Donneur</th>
+                                                <th>Montant initial</th>
+                                                <th>Montant utilisé</th>
+                                                <th>Montant restant</th>
                                             </tr>
-                                        <?php endforeach; ?>
-
-                                        <?php if (empty($donnees['donsDispos'])): ?>
-                                            <tr>
-                                                <td colspan="5" class="text-center text-muted py-4">
-                                                    Aucun don disponible
-                                                </td>
-                                            </tr>
-                                        <?php endif; ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($donnees['donsDispos'] as $don): ?>
+                                                <tr>
+                                                    <td><?= $don['type_besoin'] ?? 'N/A' ?></td>
+                                                    <td><?= htmlspecialchars($don['nom_donneur'] ?? 'Anonyme') ?></td>
+                                                    <td><?= number_format($don['montant'], 0, ',', ' ') ?> Ar</td>
+                                                    <td>
+                                                        <?php
+                                                        $montantUtilise = 0;
+                                                        foreach ($donnees['resultats'] as $res) {
+                                                            if (strpos($res['provenance'], $don['nom_donneur']) !== false) {
+                                                                $montantUtilise += $res['montant_utilise'];
+                                                            }
+                                                        }
+                                                        echo number_format($montantUtilise, 0, ',', ' ') . ' Ar';
+                                                        ?>
+                                                    </td>
+                                                    <td class="text-success">
+                                                        <?php
+                                                        $montantRestant = $don['montant'] - $montantUtilise;
+                                                        echo number_format(max(0, $montantRestant), 0, ',', ' ') . ' Ar';
+                                                        ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <?php else: ?>
+                                <div class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                                    <p class="mt-3">Aucun don disponible</p>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -518,42 +488,67 @@
                         <div class="simulation-body text-center py-5">
                             <i class="bi bi-calculator" style="font-size: 4rem; color: var(--text-light);"></i>
                             <h4 class="mt-3">Aucune simulation en cours</h4>
-                            <p class="text-muted">Cliquez sur "Lancer la simulation" pour tester différentes distributions
-                            </p>
+                            <p class="text-muted">Cliquez sur "Lancer la simulation" pour tester différentes distributions</p>
                             <form method="post" action="/simulation/simuler" style="display: inline;">
                                 <input type="hidden" name="description" value="Simulation <?= date('d/m/Y H:i') ?>">
                                 <button type="submit" class="btn-simuler mt-3">
                                     <i class="bi bi-play-fill"></i>
-                                    Commencer une simulation
+                                    Lancer la simulation
                                 </button>
                             </form>
                         </div>
                     </div>
 
                     <!-- Aperçu des données actuelles -->
+                    <?php
+                    // Récupérer les vraies données pour l'aperçu
+                    $totalBesoins = 0;
+                    $totalDons = 0;
+
+                    // Calculer les vrais totaux depuis la base de données
+                    try {
+                        $db = Flight::db();
+
+                        // Total des besoins
+                        $sqlBesoins = "SELECT SUM(vb.quantite * b.prix) as total FROM ville_besoin vb JOIN besoin b ON vb.id_besoin = b.id";
+                        $stmtBesoins = $db->query($sqlBesoins);
+                        $resultBesoins = $stmtBesoins->fetch();
+                        $totalBesoins = $resultBesoins['total'] ?? 0;
+
+                        // Total des dons
+                        $sqlDons = "SELECT SUM(d.quantite * b.prix) as total FROM don d JOIN besoin b ON d.id_besoin = b.id";
+                        $stmtDons = $db->query($sqlDons);
+                        $resultDons = $stmtDons->fetch();
+                        $totalDons = $resultDons['total'] ?? 0;
+                    } catch (\Exception $e) {
+                        error_log("Erreur récupération données: " . $e->getMessage());
+                    }
+                    ?>
+
                     <div class="stats-grid mt-4">
-                        <?php
-                        $totalBesoins = 0;
-                        $totalDons = 0;
-                        foreach ($donnees['villes'] as $ville) {
-                            // À remplacer par de vraies données
-                            $totalBesoins += rand(1000000, 5000000);
-                        }
-                        foreach ($donnees['besoins'] as $besoin) {
-                            $totalDons += rand(500000, 2000000);
-                        }
-                        ?>
                         <div class="stat-card">
                             <div class="stat-label">Besoins totaux</div>
-                            <div class="stat-value"><?= number_format($totalBesoins, 0, ',', ' ') ?> Ar</div>
+                            <div class="stat-value">
+                                <?= number_format($totalBesoins, 0, ',', ' ') ?>
+                                <small>Ar</small>
+                            </div>
+                            <div class="stat-detail">À satisfaire</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-label">Dons disponibles</div>
-                            <div class="stat-value"><?= number_format($totalDons, 0, ',', ' ') ?> Ar</div>
+                            <div class="stat-value">
+                                <?= number_format($totalDons, 0, ',', ' ') ?>
+                                <small>Ar</small>
+                            </div>
+                            <div class="stat-detail"><?= count($donnees['villes'] ?? []) ?> villes concernées</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-label">Villes concernées</div>
-                            <div class="stat-value"><?= count($donnees['villes']) ?></div>
+                            <div class="stat-label">Reste à couvrir</div>
+                            <div class="stat-value">
+                                <?= number_format(max(0, $totalBesoins - $totalDons), 0, ',', ' ') ?>
+                                <small>Ar</small>
+                            </div>
+                            <div class="stat-detail">Écart</div>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -565,10 +560,10 @@
     <script src="<?= BASE_URL ?>/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Rafraîchissement automatique (optionnel)
-        setTimeout(function () {
-            location.reload();
-        }, 300000); // 5 minutes
+        // Rafraîchissement automatique (optionnel) - désactivé pour test
+        // setTimeout(function () {
+        //     location.reload();
+        // }, 300000); // 5 minutes
     </script>
 </body>
 
