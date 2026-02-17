@@ -4,6 +4,7 @@ use app\controllers\BesoinController;
 use app\controllers\DonController;
 use app\controllers\BesoinVilleController;
 use app\controllers\AchatController;
+use app\controllers\RecapController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
 use flight\net\Router;
@@ -35,6 +36,16 @@ $router->group('', function (Router $router) use ($app) {
 		// }
 		$besoinController = new BesoinController($app);
 		$besoinController->dashboardWithTotal();
+	});
+
+	$router->get('/recapitulatif', function () use ($app) {
+		$recapController = new RecapController($app);
+		$recapController->showRecap();
+	});
+
+	$router->get('/recapitulatif/data', function () use ($app) {
+		$recapController = new RecapController($app);
+		$recapController->dataApi();
 	});
 
 	$router->get('/villes-impactees', function () use ($app) {

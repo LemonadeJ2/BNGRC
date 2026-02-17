@@ -108,6 +108,10 @@ function abrevVille($nomVille)
                     <i class="bi bi-heart-fill"></i>
                     <span>Gestion des Dons</span>
                 </a>
+                <a href="/recapitulatif" class="nav-item">
+                    <i class="bi bi-kanban"></i>
+                    <span>Récapitulatif</span>
+                </a>
                 <a href="#" class="nav-item">
                     <i class="bi bi-graph-up-arrow"></i>
                     <span>Simulations d'Impact</span>

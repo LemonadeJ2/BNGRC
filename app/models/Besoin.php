@@ -167,5 +167,30 @@ class Besoin
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$id]);
     }
+
+    public function recapitulatifParVille()
+    {
+        $sql = "SELECT v.id,
+                       v.nom AS ville,
+                       COALESCE(besoins.montant_besoins, 0) AS montant_besoin,
+                       COALESCE(dons.montant_dons, 0) AS montant_satisfait
+                FROM ville v
+                LEFT JOIN (
+                    SELECT vb.id_ville, SUM(vb.quantite * b.prix) AS montant_besoins
+                    FROM ville_besoin vb
+                    JOIN besoin b ON b.id = vb.id_besoin
+                    GROUP BY vb.id_ville
+                ) besoins ON besoins.id_ville = v.id
+                LEFT JOIN (
+                    SELECT d.id_ville, SUM(d.quantite * b.prix) AS montant_dons
+                    FROM don d
+                    JOIN besoin b ON b.id = d.id_besoin
+                    GROUP BY d.id_ville
+                ) dons ON dons.id_ville = v.id
+                ORDER BY v.nom";
+
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll();
+    }
 }
 ?>
