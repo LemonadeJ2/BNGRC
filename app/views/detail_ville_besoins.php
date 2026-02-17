@@ -503,27 +503,39 @@
                         <div class="city-header">
                             <h3>
                                 <i class="bi bi-geo-alt-fill me-2" style="color: var(--primary-color);"></i>
-                                <?= $ville['ville'] ?>
+                                <?= htmlspecialchars($ville['ville']) ?>
                             </h3>
-                            <span class="badge bg-info"><?= $ville['totalBesoins'] ?> besoins</span>
+                            <span class="badge bg-info"><?= count($ville['besoins']) ?> besoins</span>
                         </div>
 
+                        <!-- Besoins des villes -->
                         <div class="needs-section">
                             <?php foreach ($ville['besoins'] as $besoin): ?>
                                 <div class="need-item">
                                     <div class="need-info">
-                                        <h4><?= $besoin['nom'] ?></h4>
+                                        <h4><?= htmlspecialchars($besoin['nom']) ?></h4>
+                                        <small class="text-muted">Original:
+                                            <?= number_format($besoin['quantite_originale'] ?? 0, 0, ',', ' ') ?></small>
                                     </div>
 
                                     <div class="need-amounts">
                                         <div>
                                             <span
-                                                class="amount"><?= number_format($besoin['quantite_prevue'], 0, ',', ' ') ?></span>
-                                            <span class="unit">prévu</span>
+                                                class="amount"><?= number_format($besoin['quantite_restante'] ?? 0, 0, ',', ' ') ?></span>
+                                            <span class="unit">restant</span>
                                         </div>
-                                        <div class="received">Reçu: <?= number_format($besoin['don_recu'], 0, ',', ' ') ?></div>
-                                        <div class="received text-danger">Reste:
-                                            <?= number_format($besoin['reste'], 0, ',', ' ') ?></div>
+                                        <div class="received">
+                                            <span class="text-success">Dons:
+                                                <?= number_format($besoin['don_recu'] ?? 0, 0, ',', ' ') ?></span>
+                                        </div>
+                                        <div class="received">
+                                            <span class="text-primary">Achats:
+                                                <?= number_format($besoin['achat_quantite'] ?? 0, 0, ',', ' ') ?></span>
+                                        </div>
+                                        <div class="received text-info">
+                                            Total satisfait:
+                                            <?= number_format($besoin['quantite_satisfaite'] ?? 0, 0, ',', ' ') ?>
+                                        </div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>

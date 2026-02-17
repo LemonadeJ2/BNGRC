@@ -47,7 +47,7 @@ $router->group('', function (Router $router) use ($app) {
 			$app->redirect('/login_admin');
 			return;
 		}
-		$donController = new app\controllers\DonController($app);
+		$donController = new DonController($app);
 		$donController->gestionDons();
 	});
 
@@ -56,7 +56,7 @@ $router->group('', function (Router $router) use ($app) {
 			$app->redirect('/login_admin');
 			return;
 		}
-		$donController = new app\controllers\DonController($app);
+		$donController = new DonController($app);
 		$donController->ajouterDon();
 	});
 

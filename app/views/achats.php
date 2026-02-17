@@ -385,7 +385,8 @@
                                             <td><?= number_format($besoin['prix_unitaire'], 0, ',', ' ') ?> Ar</td>
                                             <td><?= number_format($besoin['quantite_restante'], 0, ',', ' ') ?></td>
                                             <td class="montant-restant">
-                                                <?= number_format($besoin['montant_restant'], 0, ',', ' ') ?> Ar</td>
+                                                <?= number_format($besoin['montant_restant'], 0, ',', ' ') ?> Ar
+                                            </td>
                                             <td>
                                                 <button class="btn-success-custom" onclick="openAchatModal(
                                                 <?= $besoin['ville_id'] ?>,
@@ -460,7 +461,8 @@
                                             <td><?= htmlspecialchars($achat['besoin']) ?></td>
                                             <td><?= number_format($achat['quantite'], 0, ',', ' ') ?></td>
                                             <td><?= number_format($achat['montant_achat'], 0, ',', ' ') ?> Ar</td>
-                                            <td><?= number_format(($frais / 100) * $achat['montant_achat'], 0, ',', ' ') ?> Ar</td>
+                                            <td><?= number_format(($frais / 100) * $achat['montant_achat'], 0, ',', ' ') ?>
+                                                Ar</td>
                                             <td><strong><?= number_format($achat['montant_total'], 0, ',', ' ') ?>
                                                     Ar</strong></td>
                                             <td>
@@ -573,21 +575,27 @@
     <script src="<?= BASE_URL ?>/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        let frais = <?= $frais ?>;
-        let donsRestants = <?= $donsRestants ?>;
+        let frais = <?= (float) $frais ?>;
+        let donsRestants = <?= (float) $donsRestants ?>;
+        let prixUnitaireGlobal = 0;
 
         function openAchatModal(villeId, besoinId, villeNom, besoinNom, prixUnitaire, maxQuantite) {
             document.getElementById('modal_id_ville').value = villeId;
             document.getElementById('modal_id_besoin').value = besoinId;
+
             document.getElementById('modal_ville').textContent = villeNom;
             document.getElementById('modal_besoin').textContent = besoinNom;
-            document.getElementById('modal_prix').textContent = prixUnitaire.toLocaleString('fr-FR') + ' Ar';
-            document.getElementById('modal_max').textContent = maxQuantite;
 
+            prixUnitaireGlobal = parseFloat(prixUnitaire);
+
+            document.getElementById('modal_prix').textContent =
+                prixUnitaireGlobal.toLocaleString('fr-FR') + ' Ar';
+
+            document.getElementById('modal_max').textContent = maxQuantite;
             document.getElementById('modal_quantite').max = maxQuantite;
             document.getElementById('modal_quantite').value = 1;
 
-            calculerTotal(prixUnitaire);
+            calculerTotal();
 
             document.getElementById('achatModal').style.display = 'flex';
         }
@@ -598,39 +606,38 @@
 
         function calculerTotal() {
             const quantite = parseInt(document.getElementById('modal_quantite').value) || 0;
-            const prixText = document.getElementById('modal_prix').textContent;
-            const prix = parseInt(prixText.replace(/[^0-9]/g, '')) || 0;
 
-            const montantAchat = quantite * prix;
+            const montantAchat = quantite * prixUnitaireGlobal;
             const montantFrais = montantAchat * (frais / 100);
             const montantTotal = montantAchat + montantFrais;
 
-            document.getElementById('modal_frais').textContent = montantFrais.toLocaleString('fr-FR') + ' Ar';
-            document.getElementById('modal_total').textContent = montantTotal.toLocaleString('fr-FR') + ' Ar';
+            document.getElementById('modal_frais').textContent =
+                montantFrais.toLocaleString('fr-FR') + ' Ar';
 
-            // Vérifier si les dons sont suffisants
+            const totalElement = document.getElementById('modal_total');
+            totalElement.textContent =
+                montantTotal.toLocaleString('fr-FR') + ' Ar';
+
             if (montantTotal > donsRestants) {
-                document.getElementById('modal_total').style.color = '#dc2626';
+                totalElement.style.color = '#dc2626';
             } else {
-                document.getElementById('modal_total').style.color = 'var(--primary-color)';
+                totalElement.style.color = 'var(--primary-color)';
             }
         }
 
         function filterByVille() {
             const villeId = document.getElementById('villeFilter').value;
-            if (villeId) {
-                window.location.href = '/achats?ville=' + villeId;
-            } else {
-                window.location.href = '/achats';
-            }
+            window.location.href = villeId
+                ? '/achats?ville=' + villeId
+                : '/achats';
         }
 
-        // Fermer le modal en cliquant à l'extérieur
         document.getElementById('achatModal').addEventListener('click', function (event) {
             if (event.target === this) {
                 closeAchatModal();
             }
         });
+
     </script>
 </body>
 

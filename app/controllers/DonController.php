@@ -91,18 +91,36 @@ class DonController
         $date_don = $_POST['date_don'] ?? date('Y-m-d');
 
         if (!$id_ville || !$id_besoin || !$nom_donneur || !$quantite) {
+            error_log("ERREUR: Champs manquants");
             $_SESSION['message'] = 'Tous les champs sont obligatoires';
             $_SESSION['message_type'] = 'danger';
             $this->app->redirect('/gestion-dons');
             return;
         }
 
+        // Vérifier que le besoin existe et récupérer son type
+        try {
+            $sql = "SELECT b.*, t.type_besoin 
+                FROM besoin b 
+                LEFT JOIN type_besoin t ON b.id_type_besoin = t.id 
+                WHERE b.id = ?";
+            $stmt = Flight::db()->prepare($sql);
+            $stmt->execute([$id_besoin]);
+            $besoin = $stmt->fetch();
+
+            error_log("Besoin trouvé: " . print_r($besoin, true));
+        } catch (\Exception $e) {
+            error_log("Erreur vérification besoin: " . $e->getMessage());
+        }
+
         $result = $this->donModel->saisieDons($id_ville, $id_besoin, $nom_donneur, $quantite, $date_don);
 
         if ($result) {
+            error_log("SUCCÈS: Don ajouté");
             $_SESSION['message'] = 'Don ajouté avec succès';
             $_SESSION['message_type'] = 'success';
         } else {
+            error_log("ÉCHEC: Don non ajouté");
             $_SESSION['message'] = 'Erreur lors de l\'ajout du don';
             $_SESSION['message_type'] = 'danger';
         }

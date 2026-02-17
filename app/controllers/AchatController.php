@@ -31,6 +31,7 @@ class AchatController
         $frais = $this->achatModel->getFraisAchat();
         $villes = $this->villeModel->getAllVilles();
 
+
         // Récupérer les achats (filtrés si nécessaire)
         $ville_filter = $_GET['ville'] ?? null;
         $achats = $this->achatModel->getAchatsFiltrables($ville_filter);

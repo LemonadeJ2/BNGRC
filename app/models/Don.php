@@ -72,50 +72,59 @@ class Don
     }
 
     /// Insertion de dons
-    // Dans Don.php, ajoutez/modifiez cette méthode
     public function saisieDons($id_ville, $id_besoin, $donateur, $quantite, $date_don)
     {
         try {
-            $this->db->beginTransaction();
-
-            // Insérer le don
-            $sql = "INSERT INTO don (id_ville, id_besoin, nom_donneur, quantite, date_don) 
-                VALUES (?, ?, ?, ?, ?)";
-            $stmt = $this->db->prepare($sql);
-            $result = $stmt->execute([$id_ville, $id_besoin, $donateur, $quantite, $date_don]);
-
-            if (!$result) {
-                throw new \Exception("Erreur lors de l'insertion du don");
-            }
-
-            $id_don = $this->db->lastInsertId();
-
-            // Si c'est un don en argent, l'ajouter à don_argent
-            $sql = "SELECT b.id_type_besoin, b.prix 
-                FROM besoin b 
-                WHERE b.id = ?";
+            // Récupérer le type de besoin
+            $sql = "SELECT b.id_type_besoin, b.prix FROM besoin b WHERE b.id = ?";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([$id_besoin]);
             $besoin = $stmt->fetch();
 
-            if ($besoin && $besoin['id_type_besoin'] == 3) { // Type 'Argent'
-                $montant = $quantite * $besoin['prix'];
-                $sql = "INSERT INTO don_argent (id_don, montant_initial, montant_restant) 
-                    VALUES (?, ?, ?)";
-                $stmt = $this->db->prepare($sql);
-                $stmt->execute([$id_don, $montant, $montant]);
+            if (!$besoin) {
+                error_log("Besoin non trouvé");
+                return false;
             }
 
-            $this->db->commit();
-            return true;
+            // Si c'est un don en argent (type 3)
+            if ($besoin['id_type_besoin'] == 3) {
+                $montant = $quantite; 
 
-        } catch (\Exception $e) {
-            $this->db->rollBack();
-            error_log("Erreur saisie don: " . $e->getMessage());
+                // Calculer la quantité équivalente en unités de besoin
+                $prix_unitaire_besoin = $besoin['prix']; // 60.000.000 Ar
+                $quantite_unite = $montant / $prix_unitaire_besoin;
+
+                error_log("Don en argent: montant=$montant Ar, équivalent=$quantite_unite unités");
+
+                // Insérer avec la quantité calculée
+                $sql = "INSERT INTO don (id_ville, id_besoin, nom_donneur, quantite, date_don) 
+                    VALUES (?, ?, ?, ?, ?)";
+                $stmt = $this->db->prepare($sql);
+
+                // Stocker la quantité en tant que DECIMAL dans la base
+                $result = $stmt->execute([$id_ville, $id_besoin, $donateur, $quantite_unite, $date_don]);
+
+            } else {
+                // Don normal (nature ou matériel)
+                $sql = "INSERT INTO don (id_ville, id_besoin, nom_donneur, quantite, date_don) 
+                    VALUES (?, ?, ?, ?, ?)";
+                $stmt = $this->db->prepare($sql);
+                $result = $stmt->execute([$id_ville, $id_besoin, $donateur, $quantite, $date_don]);
+            }
+
+            if ($result) {
+                error_log("Don inséré avec succès");
+                return true;
+            } else {
+                error_log("Échec insertion: " . print_r($stmt->errorInfo(), true));
+                return false;
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Exception PDO: " . $e->getMessage());
             return false;
         }
     }
-
     public function donsAttribuesParVille()
     {
         $sql = "SELECT * FROM dons_par_ville";

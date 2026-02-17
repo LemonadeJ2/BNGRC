@@ -39,3 +39,7 @@ CREATE TABLE don(
     FOREIGN KEY (id_ville) REFERENCES ville(id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_besoin) REFERENCES besoin(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+
+-- Modifier la colonne quantite pour accepter des décimales
+ALTER TABLE don MODIFY quantite DECIMAL(10,2) NOT NULL;

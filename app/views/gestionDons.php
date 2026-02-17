@@ -475,7 +475,7 @@
                     <h2>Gestion des Dons</h2>
                     <span class="badge badge-live"><?= $nombreDons ?> Dons</span>
                 </div>
-                <div class="header-right">
+                <!-- <div class="header-right">
                     <div class="notification-icon">
                         <i class="bi bi-bell"></i>
                         <span class="notification-badge">3</span>
@@ -485,7 +485,7 @@
                         <span>Déconnexion</span>
                         <i class="bi bi-box-arrow-right"></i>
                     </a>
-                </div>
+                </div> -->
             </header>
             
             <!-- Content Area -->
@@ -574,7 +574,7 @@
                                         <td><?= $don['ville'] ?></td>
                                         <td><?= $don['besoin'] ?></td>
                                         <td><?= $don['nom_donneur'] ?></td>
-                                        <td><?= number_format($don['quantite'], 0, ',', ' ') ?></td>
+                                        <td><?= number_format($don['quantite'], 2, ',', ' ') ?></td>
                                         <td><?= date('d/m/Y', strtotime($don['date_don'])) ?></td>
                                         <td>
                                             <a href="/supprimer-don/<?= $don['id'] ?>" 
