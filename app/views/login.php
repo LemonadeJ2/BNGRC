@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="assets/login.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/login.css">
 </head>
 <body>
 <div class="page">
@@ -28,24 +28,24 @@
                 <label class="field">
                     <span class="field__label">Nom d'utilisateur</span>
                     <div class="field__input">
-                        <span class="material-icons">username</span>
+                        <span class="">👤</span>
                         <input type="text" name="name" value="admin" required>
                     </div>
-                </label>
+                </label><br>
                 <label class="field">
                     <span class="field__label">Mot de passe</span>
                     <div class="field__input">
-                        <span class="material-icons">lock</span>
+                        <span class="">🔒</span>
                         <input type="password" name="password" value="admin123" required>
                     </div>
-                </label>
-                <div class="form__actions">
+                </label><br>
+                <!-- <div class="form__actions">
                     <label class="remember">
                         <input type="checkbox" name="remember" checked>
                         <span>Rester connecté</span>
                     </label>
                     <a class="link" href="#">Mot de passe oublié ?</a>
-                </div>
+                </div> -->
                 <button class="btn" type="submit">Se connecter</button>
             </form>
             <p class="panel__footer">Accès réservé au personnel autorisé BNGRC.</p>
