@@ -5,6 +5,7 @@ use app\controllers\DonController;
 use app\controllers\BesoinVilleController;
 use app\controllers\AchatController;
 use app\controllers\RecapController;
+use app\controllers\SimulationController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
 use flight\net\Router;
@@ -116,6 +117,26 @@ $router->group('', function (Router $router) use ($app) {
 		}
 		$achatController = new AchatController($app);
 		$achatController->pageAchats();
+	});
+
+	$router->get('/simulation', function () use ($app) {
+		$simulationController = new SimulationController($app);
+		$simulationController->page();
+	});
+
+	$router->post('/simulation/run', function () use ($app) {
+		$simulationController = new SimulationController($app);
+		$simulationController->simulate();
+	});
+
+	$router->post('/simulation/validate', function () use ($app) {
+		$simulationController = new SimulationController($app);
+		$simulationController->validate();
+	});
+
+	$router->post('/simulation/reset', function () use ($app) {
+		$simulationController = new SimulationController($app);
+		$simulationController->reset();
 	});
 
 	$router->post('/update-frais', function () use ($app) {

@@ -192,5 +192,22 @@ class Besoin
         $stmt = $this->db->query($sql);
         return $stmt->fetchAll();
     }
+
+    public function besoinsParVilleChrono()
+    {
+        $sql = "SELECT vb.id_ville,
+                       v.nom AS ville,
+                       vb.id_besoin,
+                       b.nom AS besoin,
+                       vb.quantite,
+                       vb.dateB
+                FROM ville_besoin vb
+                JOIN ville v ON v.id = vb.id_ville
+                JOIN besoin b ON b.id = vb.id_besoin
+                ORDER BY vb.dateB ASC, v.nom";
+
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll();
+    }
 }
 ?>

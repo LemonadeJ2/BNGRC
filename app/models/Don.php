@@ -151,5 +151,21 @@ class Don
         $stmt->execute([$villeId]);
         return $stmt->fetchAll();
     }
+
+    public function stockParBesoin()
+    {
+        $sql = "SELECT id_besoin, SUM(quantite) AS stock
+                FROM don
+                GROUP BY id_besoin";
+
+        $stmt = $this->db->query($sql);
+        $rows = $stmt->fetchAll();
+
+        $stock = [];
+        foreach ($rows as $row) {
+            $stock[$row['id_besoin']] = (float) ($row['stock'] ?? 0);
+        }
+        return $stock;
+    }
 }
 ?>
