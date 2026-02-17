@@ -2,9 +2,8 @@
 use app\controllers\AdminController;
 use app\controllers\BesoinController;
 use app\controllers\DonController;
-use app\controllers\BesoinVilleController;
 use app\controllers\AchatController;
-use app\controllers\RecapController;
+use app\controllers\BesoinVilleController;
 use app\controllers\SimulationController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
@@ -155,6 +154,42 @@ $router->group('', function (Router $router) use ($app) {
 		}
 		$achatController = new AchatController($app);
 		$achatController->effectuerAchat();
+	});
+
+	$router->get('/simulation', function () use ($app) {
+		if (!isset($_SESSION['admin'])) {
+			$app->redirect('/login_admin');
+			return;
+		}
+		$simulationController = new SimulationController($app);
+		$simulationController->index();
+	});
+
+	$router->post('/simulation/simuler', function () use ($app) {
+		if (!isset($_SESSION['admin'])) {
+			$app->redirect('/login_admin');
+			return;
+		}
+		$simulationController = new SimulationController($app);
+		$simulationController->simuler();
+	});
+
+	$router->post('/simulation/valider', function () use ($app) {
+		if (!isset($_SESSION['admin'])) {
+			$app->redirect('/login_admin');
+			return;
+		}
+		$simulationController = new SimulationController($app);
+		$simulationController->valider();
+	});
+
+	$router->get('/simulation/reinitialiser', function () use ($app) {
+		if (!isset($_SESSION['admin'])) {
+			$app->redirect('/login_admin');
+			return;
+		}
+		$simulationController = new SimulationController($app);
+		$simulationController->reinitialiser();
 	});
 
 }, [SecurityHeadersMiddleware::class]);

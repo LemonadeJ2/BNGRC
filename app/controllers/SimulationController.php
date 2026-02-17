@@ -3,258 +3,178 @@ namespace app\controllers;
 
 use Flight;
 use flight\Engine;
-use app\models\Besoin;
-use app\models\Don;
+use app\models\Simulation;
 use app\models\Ville;
+use app\models\Besoin;
 
 class SimulationController
 {
     protected Engine $app;
-
-    private Besoin $besoinModel;
-    private Don $donModel;
-    private Ville $villeModel;
+    private $simulationModel;
+    private $villeModel;
+    private $besoinModel;
 
     public function __construct(Engine $app)
     {
         $this->app = $app;
-        $this->besoinModel = new Besoin(Flight::db());
-        $this->donModel = new Don(Flight::db());
+        $this->simulationModel = new Simulation(Flight::db());
         $this->villeModel = new Ville(Flight::db());
+        $this->besoinModel = new Besoin(Flight::db());
     }
 
-    public function page()
+    public function index()
     {
-        $result = $this->runSimulation('date');
-        $admin = $_SESSION['admin'] ?? 'Admin';
+        $userId = $_SESSION['admin'] ?? session_id();
+        $simulationEnCours = $this->simulationModel->getDerniereSauvegarde($userId);
+
+        $villes = $this->villeModel->getAllVilles();
+        $besoins = $this->besoinModel->getAllBesoins();
+
+        $donnees = [
+            'villes' => $villes,
+            'besoins' => $besoins,
+            'simulation' => null,
+            'resultats' => [],
+            'donsDispos' => [],
+            'besoinsRestants' => []
+        ];
+
+        if ($simulationEnCours) {
+            $donnees['simulation'] = $simulationEnCours;
+
+            // Récupérer les résultats
+            $donnees['resultats'] = $this->simulationModel->getResultatsBySave($simulationEnCours['id']);
+
+            // DÉBOGAGE
+            error_log("=== CHARGEMENT PAGE SIMULATION ===");
+            error_log("Simulation ID: " . $simulationEnCours['id']);
+            error_log("Nombre de résultats trouvés: " . count($donnees['resultats']));
+
+            // Récupérer les dons
+            $donnees['donsDispos'] = $this->simulationModel->getDonsBySave($simulationEnCours['id']);
+
+            // Calculer les besoins restants
+            $tousBesoins = $this->simulationModel->getBesoinsBySave($simulationEnCours['id']);
+            $besoinsRestants = [];
+            foreach ($tousBesoins as $besoin) {
+                $quantiteRestante = $besoin['quantite'];
+                foreach ($donnees['resultats'] as $resultat) {
+                    if (
+                        $resultat['id_ville'] == $besoin['id_ville'] &&
+                        $resultat['id_besoin'] == $besoin['id_besoin']
+                    ) {
+                        $quantiteRestante -= $resultat['quantite_proposee'];
+                    }
+                }
+                if ($quantiteRestante > 0) {
+                    $besoinsRestants[] = $besoin;
+                }
+            }
+            $donnees['besoinsRestants'] = $besoinsRestants;
+        }
+
+        $admin = $_SESSION['admin'] ?? null;
 
         $this->app->render('simulation.php', [
-            'simulation' => $result,
-            'mode' => 'date',
+            'donnees' => $donnees,
             'admin' => $admin
         ]);
     }
-
-    public function simulate()
+    public function simuler()
     {
-        $mode = $_POST['mode'] ?? 'date';
-        $result = $this->runSimulation($mode);
-        $this->app->json($result);
-    }
+        $userId = $_SESSION['admin'] ?? session_id();
+        $description = $_POST['description'] ?? 'Simulation du ' . date('d/m/Y H:i');
 
-    public function validate()
-    {
-        $mode = $_POST['mode'] ?? 'date';
-        $result = $this->runSimulation($mode);
-        $runId = $this->saveSimulation($mode, $result);
+        try {
+            // 1. Sauvegarder l'état actuel
+            $saveId = $this->simulationModel->sauvegarderEtatAvant($userId, $description);
 
-        $this->app->json([
-            'saved' => true,
-            'run_id' => $runId,
-            'result' => $result
-        ]);
-    }
-
-    public function reset()
-    {
-        $result = $this->runSimulation('date');
-        $this->app->json($result);
-    }
-
-    private function runSimulation(string $mode): array
-    {
-        $stock = $this->donModel->stockParBesoin();
-        $needs = $this->besoinModel->besoinsParVilleChrono();
-
-        // Regroupe par besoin pour le mode proportionnel
-        $needsByBesoin = [];
-        foreach ($needs as $need) {
-            $idBesoin = $need['id_besoin'];
-            if (!isset($needsByBesoin[$idBesoin])) {
-                $needsByBesoin[$idBesoin] = [];
+            if (!$saveId) {
+                throw new \Exception("Échec de la sauvegarde");
             }
-            $needsByBesoin[$idBesoin][] = $need;
-        }
 
-        $allocations = [];
-        $remainingStock = $stock;
+            // 2. Récupérer les données pour la simulation
+            $dons = $this->simulationModel->getDonsBySave($saveId);
+            $besoins = $this->simulationModel->getBesoinsBySave($saveId);
 
-        if ($mode === 'proportionnel') {
-            foreach ($needsByBesoin as $idBesoin => $items) {
-                $stockBesoin = $remainingStock[$idBesoin] ?? 0;
-                if ($stockBesoin <= 0) {
-                    $this->recordZeroAllocations($allocations, $items);
-                    continue;
-                }
+            // 3. Algorithme de distribution (simplifié pour test)
+            foreach ($besoins as $besoin) {
+                $quantiteRestante = $besoin['quantite'];
 
-                $totalNeed = array_reduce($items, function ($carry, $item) {
-                    return $carry + (float) $item['quantite'];
-                }, 0.0);
-
-                if ($totalNeed <= 0) {
-                    $this->recordZeroAllocations($allocations, $items);
-                    continue;
-                }
-
-                $baseAllocations = [];
-                $remainders = [];
-                $allocatedSum = 0;
-
-                foreach ($items as $index => $item) {
-                    $raw = ($item['quantite'] / $totalNeed) * $stockBesoin;
-                    $base = floor($raw);
-                    // Ne jamais dépasser le besoin demandé
-                    $base = min($base, (float) $item['quantite']);
-                    $baseAllocations[$index] = $base;
-                    $remainders[$index] = $raw - $base;
-                    $allocatedSum += $base;
-                }
-
-                $remainingForBesoin = max(0, $stockBesoin - $allocatedSum);
-
-                // Distribuer le reste aux meilleurs restes décimaux
-                arsort($remainders);
-                foreach ($remainders as $index => $fraction) {
-                    if ($remainingForBesoin <= 0) {
+                foreach ($dons as $don) {
+                    if ($quantiteRestante <= 0)
                         break;
-                    }
-                    $needLeft = (float) $items[$index]['quantite'] - $baseAllocations[$index];
-                    if ($needLeft <= 0) {
-                        continue;
-                    }
-                    $add = min(1, $remainingForBesoin, $needLeft);
-                    $baseAllocations[$index] += $add;
-                    $remainingForBesoin -= $add;
-                }
 
-                foreach ($items as $index => $item) {
-                    $allocations[] = $this->buildAllocationRow($item, $baseAllocations[$index]);
-                }
+                    if ($don['quantite'] > 0 && $don['type_besoin'] == $besoin['type_besoin']) {
+                        $quantitePrelevee = min($don['quantite'], $quantiteRestante);
 
-                $remainingStock[$idBesoin] = $remainingForBesoin;
+                        $this->simulationModel->sauvegarderResultatSimulation(
+                            $saveId,
+                            $besoin['id_ville'],
+                            $besoin['id_besoin'],
+                            $quantitePrelevee,
+                            "Don de " . ($don['nom_donneur'] ?? 'Anonyme'),
+                            $quantitePrelevee * $besoin['prix_unitaire']
+                        );
+
+                        $quantiteRestante -= $quantitePrelevee;
+                        // Note: on ne modifie pas $don ici car c'est une copie
+                    }
+                }
             }
+
+            $_SESSION['message'] = 'Simulation terminée avec succès';
+            $_SESSION['message_type'] = 'success';
+
+        } catch (\Exception $e) {
+            error_log("Erreur simulation: " . $e->getMessage());
+            error_log("Trace: " . $e->getTraceAsString());
+            $_SESSION['message'] = 'Erreur lors de la simulation: ' . $e->getMessage();
+            $_SESSION['message_type'] = 'danger';
+        }
+
+        $this->app->redirect('/simulation');
+    }
+
+    public function valider()
+    {
+        $sessionId = session_id();
+        $simulation = $this->simulationModel->getDerniereSauvegarde($sessionId);
+
+        if (!$simulation) {
+            $_SESSION['message'] = 'Aucune simulation à valider';
+            $_SESSION['message_type'] = 'danger';
+            $this->app->redirect('/simulation');
+            return;
+        }
+
+        $result = $this->simulationModel->validerSimulation($simulation['id']);
+
+        if ($result) {
+            $_SESSION['message'] = 'Distribution validée avec succès';
+            $_SESSION['message_type'] = 'success';
         } else {
-            // Mode date : on prend les besoins par ordre chronologique
-            foreach ($needs as $item) {
-                $idBesoin = $item['id_besoin'];
-                $available = $remainingStock[$idBesoin] ?? 0;
-                $needed = (float) $item['quantite'];
-                $allocated = min($available, $needed);
-                $remainingStock[$idBesoin] = max(0, $available - $allocated);
-
-                $allocations[] = $this->buildAllocationRow($item, $allocated);
-            }
+            $_SESSION['message'] = 'Erreur lors de la validation';
+            $_SESSION['message_type'] = 'danger';
         }
 
-        $byVille = $this->groupByVille($allocations);
-
-        return [
-            'mode' => $mode,
-            'byVille' => $byVille,
-            'stock' => $remainingStock,
-            'summary' => $this->buildSummary($allocations, $stock, $remainingStock)
-        ];
+        $this->app->redirect('/simulation');
     }
 
-    private function recordZeroAllocations(array &$allocations, array $items): void
+    public function reinitialiser()
     {
-        foreach ($items as $item) {
-            $allocations[] = $this->buildAllocationRow($item, 0);
-        }
-    }
+        $sessionId = session_id();
+        $result = $this->simulationModel->reinitialiserDerniereValidation($sessionId);
 
-    private function buildAllocationRow(array $item, float $allocated): array
-    {
-        $needed = (float) $item['quantite'];
-        $remaining = max(0, $needed - $allocated);
-
-        return [
-            'ville' => $item['ville'],
-            'id_ville' => $item['id_ville'],
-            'besoin' => $item['besoin'],
-            'id_besoin' => $item['id_besoin'],
-            'demande' => $needed,
-            'attribue' => $allocated,
-            'restant' => $remaining,
-            'date' => $item['dateB']
-        ];
-    }
-
-    private function groupByVille(array $allocations): array
-    {
-        $grouped = [];
-        foreach ($allocations as $row) {
-            $ville = $row['ville'];
-            if (!isset($grouped[$ville])) {
-                $grouped[$ville] = [
-                    'ville' => $ville,
-                    'items' => [],
-                    'total_attribue' => 0,
-                    'total_demande' => 0,
-                ];
-            }
-            $grouped[$ville]['items'][] = $row;
-            $grouped[$ville]['total_attribue'] += $row['attribue'];
-            $grouped[$ville]['total_demande'] += $row['demande'];
+        if ($result) {
+            $_SESSION['message'] = 'Retour à l\'état précédent effectué';
+            $_SESSION['message_type'] = 'success';
+        } else {
+            $_SESSION['message'] = 'Erreur lors de la réinitialisation';
+            $_SESSION['message_type'] = 'danger';
         }
 
-        // Trier par nom de ville pour un affichage stable
-        ksort($grouped);
-        return array_values($grouped);
-    }
-
-    private function buildSummary(array $allocations, array $initialStock, array $remainingStock): array
-    {
-        $totalAttribue = array_reduce($allocations, function ($carry, $row) {
-            return $carry + $row['attribue'];
-        }, 0.0);
-
-        return [
-            'total_attribue' => $totalAttribue,
-            'stock_initial' => $initialStock,
-            'stock_restant' => $remainingStock
-        ];
-    }
-
-    private function saveSimulation(string $mode, array $result): int
-    {
-        $db = Flight::db();
-        $db->beginTransaction();
-
-        $sqlRun = "INSERT INTO simulation_run (mode, created_at, stock_initial_json, stock_restant_json, total_attribue)
-                   VALUES (?, NOW(), ?, ?, ?)";
-        $stmtRun = $db->prepare($sqlRun);
-        $stmtRun->execute([
-            $mode,
-            json_encode($result['summary']['stock_initial'] ?? []),
-            json_encode($result['summary']['stock_restant'] ?? []),
-            $result['summary']['total_attribue'] ?? 0
-        ]);
-        $runId = (int) $db->lastInsertId();
-
-        $sqlAlloc = "INSERT INTO simulation_allocation
-                      (run_id, id_ville, ville, id_besoin, besoin, demande, attribue, restant, date_demande)
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        $stmtAlloc = $db->prepare($sqlAlloc);
-
-        foreach ($result['byVille'] as $ville) {
-            foreach ($ville['items'] as $item) {
-                $stmtAlloc->execute([
-                    $runId,
-                    $item['id_ville'],
-                    $item['ville'],
-                    $item['id_besoin'],
-                    $item['besoin'],
-                    $item['demande'],
-                    $item['attribue'],
-                    $item['restant'],
-                    $item['date']
-                ]);
-            }
-        }
-
-        $db->commit();
-        return $runId;
+        $this->app->redirect('/simulation');
     }
 }
 ?>
