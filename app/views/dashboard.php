@@ -275,10 +275,12 @@ function abrevVille($nomVille)
                                             <td>
                                                 <div class="needs-detail">
                                                     <?php foreach ($liste['liste_besoins'] as $besoin): ?>
+                                                         <?php if ($besoin['quantite_prevue'] != 0): ?>
                                                         <small class="d-block">
                                                             <?= $besoin['besoin'] ?>:
                                                             <?= number_format($besoin['quantite_prevue'], 0, ',', ' ') ?>
                                                         </small>
+                                                        <?php endif;?>
                                                     <?php endforeach; ?>
                                                     <!-- <small class="d-block"><i class="bi bi-tools"></i> Tôles: 1,000
                                                         unités</small>
