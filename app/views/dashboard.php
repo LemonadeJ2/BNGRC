@@ -22,7 +22,6 @@ function abrevVille($nomVille)
 
     <!-- Bootstrap Icons Local -->
     <link href="<?= BASE_URL ?>/assets/bootstrap/css/bootstrap-icons.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css">
 
     <!-- Custom CSS -->
     <link href="<?= BASE_URL ?>/assets/style.css" rel="stylesheet">

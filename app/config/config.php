@@ -44,7 +44,12 @@ if (empty($app) === true) {
 // This autoloads your code in the app directory so you don't have to require_once everything
 // You'll need to namespace your classes with "app\folder\" to include them properly
 $app->path(__DIR__ . $ds . '..' . $ds . '..');
-define('BASE_URL', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/'));
+$scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? ''));
+$baseUrl = rtrim($scriptDir, '/');
+if ($baseUrl === '.' || $baseUrl === '/.' || $baseUrl === '/') {
+	$baseUrl = '';
+}
+define('BASE_URL', $baseUrl);
 
 // Core config variables
 $app->set('flight.base_url', '/',);           // Base URL for your app. Change if app is in a subdirectory (e.g., '/myapp/')
