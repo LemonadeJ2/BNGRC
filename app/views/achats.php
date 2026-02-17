@@ -279,6 +279,10 @@
                     <i class="bi bi-heart-fill"></i>
                     <span>Gestion des Dons</span>
                 </a>
+                <a href="/simulation" class="nav-item">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Simulations </span>
+                </a>
             </nav>
 
             <div class="sidebar-footer">
