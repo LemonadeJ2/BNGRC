@@ -271,17 +271,13 @@
                     <i class="bi bi-building"></i>
                     <span>Villes Impactées</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="/achats" class="nav-item">
                     <i class="bi bi-clipboard-check"></i>
                     <span>Besoins Recensés</span>
                 </a>
                 <a href="/gestion-dons" class="nav-item">
                     <i class="bi bi-heart-fill"></i>
                     <span>Gestion des Dons</span>
-                </a>
-                <a href="/achats" class="nav-item active">
-                    <i class="bi bi-cart"></i>
-                    <span>Achats</span>
                 </a>
             </nav>
 
@@ -464,7 +460,7 @@
                                             <td><?= htmlspecialchars($achat['besoin']) ?></td>
                                             <td><?= number_format($achat['quantite'], 0, ',', ' ') ?></td>
                                             <td><?= number_format($achat['montant_achat'], 0, ',', ' ') ?> Ar</td>
-                                            <td><?= number_format($achat['frais'], 0, ',', ' ') ?> Ar</td>
+                                            <td><?= number_format(($frais / 100) * $achat['montant_achat'], 0, ',', ' ') ?> Ar</td>
                                             <td><strong><?= number_format($achat['montant_total'], 0, ',', ' ') ?>
                                                     Ar</strong></td>
                                             <td>

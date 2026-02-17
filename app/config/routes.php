@@ -103,7 +103,7 @@ $router->group('', function (Router $router) use ($app) {
 			$app->redirect('/login_admin');
 			return;
 		}
-		$achatController = new app\controllers\AchatController($app);
+		$achatController = new AchatController($app);
 		$achatController->pageAchats();
 	});
 
@@ -112,7 +112,7 @@ $router->group('', function (Router $router) use ($app) {
 			$app->redirect('/login_admin');
 			return;
 		}
-		$achatController = new app\controllers\AchatController($app);
+		$achatController = new AchatController($app);
 		$achatController->updateFrais();
 	});
 
@@ -121,7 +121,7 @@ $router->group('', function (Router $router) use ($app) {
 			$app->redirect('/login_admin');
 			return;
 		}
-		$achatController = new app\controllers\AchatController($app);
+		$achatController = new AchatController($app);
 		$achatController->effectuerAchat();
 	});
 
