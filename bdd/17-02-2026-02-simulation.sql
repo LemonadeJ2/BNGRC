@@ -83,3 +83,7 @@ ORDER BY TABLE_NAME;
 -- DESCRIBE sim_besoin;
 -- DESCRIBE sim_achat;
 -- DESCRIBE sim_resultat;
+
+ALTER TABLE sim_don MODIFY montant DECIMAL(20,2) NOT NULL;
+ALTER TABLE sim_resultat MODIFY montant_utilise DECIMAL(20,2);
+ALTER TABLE sim_besoin MODIFY prix_unitaire DECIMAL(20,2) NOT NULL;

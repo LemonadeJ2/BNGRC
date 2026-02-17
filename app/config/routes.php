@@ -162,5 +162,10 @@ $router->group('', function (Router $router) use ($app) {
 		$simulationController->reinitialiser();
 	});
 
+	$router->get('/test-save-etape', function() use ($app) {
+    $controller = new app\controllers\SimulationController($app);
+    $controller->testSauvegardeEtape();
+});
+
 }, [SecurityHeadersMiddleware::class]);
 ?>
